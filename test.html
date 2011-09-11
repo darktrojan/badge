@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>No title</title>
+<script type="text/javascript">
+b = 0;
+setInterval (function () {
+	b += 1;//Math.floor (Math.random () * 5);
+	document.title = '[' + b + '] Test Page';
+}, 15000);
+function reset () {
+	b = 0;
+	document.title = '[' + b + '] Test Page';
+}
+</script>
+</head>
+
+<body>
+<button type="button" onclick="reset ();">Reset</button>
+</body>
+</html>

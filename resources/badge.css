@@ -1,0 +1,22 @@
+.tab-badge {
+	text-align: center;
+	padding: 0 4px;
+}
+
+tab:not([pinned]) .tab-badge {
+	-moz-margin-end: 3px !important;
+}
+
+.tabbrowser-tabs[closebuttons="activetab"] tab:not([pinned])[selected="true"] .tab-badge,
+.tabbrowser-tabs[closebuttons="alltabs"] tab:not([pinned]) .tab-badge {
+	-moz-margin-end: 0 !important;
+}
+
+tab[pinned="true"] .tab-badge {
+	-moz-margin-end: 2px !important;
+}
+
+tab[pinned="true"] .tab-badge.winstripe {
+	-moz-margin-start: -3px !important;
+	-moz-margin-end: 5px !important;
+}

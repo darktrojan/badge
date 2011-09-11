@@ -1,0 +1,38 @@
+<settings xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<setting type="control" title="Badge Style">
+		<menulist id="tabbadge-style-menulist" sizetopopup="always" oncommand="Services.prefs.setIntPref ('extensions.tabbadge.style', this.getAttribute ('value'));">
+			<menupopup>
+				<menuitem label="Badge inside tab" value="1" />
+				<menuitem label="Text on tab icon" value="2" />
+			</menupopup>
+		</menulist>
+	</setting>
+	<setting type="control" title="Blacklist Mode">
+		<menulist id="tabbadge-mode-menulist" sizetopopup="always" oncommand="Services.prefs.setIntPref ('extensions.tabbadge.mode', this.getAttribute ('value'));">
+			<menupopup>
+				<menuitem label="Do not show for domains on blacklist" value="1" />
+				<menuitem label="Only show for domains on whitelist" value="2" />
+			</menupopup>
+		</menulist>
+	</setting>
+	<setting id="tabbadge-style-setting" type="menulist" pref="extensions.tabbadge.style" title="Badge Style">
+		<menulist sizetopopup="always">
+			<menupopup>
+				<menuitem label="Badge inside tab" value="1" />
+				<menuitem label="Text on tab icon" value="2" />
+			</menupopup>
+		</menulist>
+	</setting>
+	<setting type="menulist" pref="extensions.tabbadge.mode" title="Blacklist Mode">
+		<menulist sizetopopup="always">
+			<menupopup>
+				<menuitem label="Do not show for domains on blacklist" value="1" />
+				<menuitem label="Only show for domains on whitelist" value="2" />
+			</menupopup>
+		</menulist>
+	</setting>
+	<setting type="string" pref="extensions.tabbadge.blacklist" title="Blacklisted Domains">Separate domains with a space</setting>
+	<setting type="string" pref="extensions.tabbadge.whitelist" title="Whitelisted Domains">Separate domains with a space</setting>
+	<setting type="color" pref="extensions.tabbadge.backcolor" title="Background Colour" />
+	<setting type="color" pref="extensions.tabbadge.forecolor" title="Foreground Colour" />
+</settings>
