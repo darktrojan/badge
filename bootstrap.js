@@ -90,7 +90,6 @@ function startup (params, aReason) {
 		paint (windowEnum.getNext ());
 	}
 	Services.ww.registerNotification (obs);
-	Services.obs.addObserver (obs, 'addon-options-displayed', false);
 }
 function shutdown (params, aReason) {
 	if (aReason == APP_SHUTDOWN) {
@@ -102,7 +101,6 @@ function shutdown (params, aReason) {
 		unpaint (windowEnum.getNext ());
 	}
 	Services.ww.unregisterNotification (obs);
-	Services.obs.removeObserver (obs, 'addon-options-displayed');
 
 	prefs.removeObserver ('', obs);
 
@@ -233,21 +231,6 @@ let obs = {
 				whitelistMode = prefs.getIntPref ('mode') == MODE_WHITELIST;
 				enumerateTabs (updateBadge);
 				break;
-			}
-			break;
-		case 'addon-options-displayed':
-			if (aData == ADDON_ID) {
-				// keep type="control" settings until 7.0 is dropped
-				let newSetting = aSubject.getElementById ('tabbadge-style-setting');
-				let style = aSubject.defaultView.getComputedStyle (newSetting, null);
-				if (style.getPropertyValue ('display') == '-moz-grid-line') {
-					newSetting.setAttribute ('first-row', 'true');
-					newSetting.parentNode.removeChild (newSetting.previousSibling);
-					newSetting.parentNode.removeChild (newSetting.previousSibling);
-				} else {
-					aSubject.getElementById ('tabbadge-style-menulist').value = prefs.getIntPref ('style');
-					aSubject.getElementById ('tabbadge-mode-menulist').value = prefs.getIntPref ('mode');
-				}
 			}
 			break;
 		}
