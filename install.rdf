@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>badge@darktrojan.net</em:id>
-		<em:version>1.8</em:version>
+		<em:version>1.9</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Tab Badge</em:name>
@@ -13,8 +13,8 @@
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:minVersion>9.0</em:minVersion>
-				<em:maxVersion>12.0a1</em:maxVersion>
+				<em:minVersion>10.0</em:minVersion>
+				<em:maxVersion>13.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 	</Description>
