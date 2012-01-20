@@ -55,6 +55,7 @@ function startup (params, aReason) {
 	});
 
 	prefs = Services.prefs.getBranch ('extensions.tabbadge.').QueryInterface (Ci.nsIPrefBranch2);
+	prefs.setCharPref("version", params.version);
 	try {
 		forecolor = prefs.getCharPref ('forecolor');
 		backcolor = prefs.getCharPref ('backcolor');
