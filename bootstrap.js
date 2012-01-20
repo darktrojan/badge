@@ -129,11 +129,12 @@ function paint (win) {
 			try {
 				let list = whitelistMode ? whitelist : blacklist;
 				let listName = whitelistMode ? 'whitelist' : 'blacklist';
-				let index = list.indexOf (uri.host);
+				let blacklistString = uri.schemeIs("file") ? uri.spec : uri.host;
+				let index = list.indexOf (blacklistString);
 				if (index > -1) {
 					list.splice (index, 1);
 				} else {
-					list.push (uri.host);
+					list.push (blacklistString);
 				}
 				Services.prefs.setCharPref ('extensions.tabbadge.' + listName, list.join (' '));
 			} catch (e) {
@@ -262,26 +263,26 @@ function popupShowing (event) {
 	let shouldShow = false;
 
 	try {
-		if (!!uri.host) {
-			if (whitelistMode) {
-				if (isBlacklisted (tab)) {
-					menuItem.setAttribute ('label', 'Whitelist Tab Badge for ' + uri.host);
-				} else {
-					menuItem.setAttribute ('label', 'Un-Whitelist Tab Badge for ' + uri.host);
-				}
+		let hostString = uri.schemeIs("file") ? "this file" : uri.host;
+		let blacklisted = isBlacklisted(uri);
+		if (whitelistMode) {
+			if (blacklisted) {
+				menuItem.setAttribute ('label', 'Whitelist Tab Badge for ' + hostString);
+			} else {
+				menuItem.setAttribute ('label', 'Un-Whitelist Tab Badge for ' + hostString);
+			}
+			shouldShow = true;
+		} else {
+			if (blacklisted) {
+				menuItem.setAttribute ('label', 'Un-Blacklist Tab Badge for ' + hostString);
 				shouldShow = true;
 			} else {
-				if (isBlacklisted (tab)) {
-					menuItem.setAttribute ('label', 'Un-Blacklist Tab Badge for ' + uri.host);
-					shouldShow = true;
-				} else {
-					menuItem.setAttribute ('label', 'Blacklist Tab Badge for ' + uri.host);
+				menuItem.setAttribute ('label', 'Blacklist Tab Badge for ' + hostString);
 
-					let tabBadge = tab.ownerDocument.getAnonymousElementByAttribute (tab, 'anonid', BADGE_ANONID);
-					let tabBadgeLayer = tab.ownerDocument.getAnonymousElementByAttribute (tab, 'anonid', BADGE_LAYER_ANONID);
-					if (!!tabBadge || !!tabBadgeLayer) {
-						shouldShow = true;
-					}
+				let tabBadge = tab.ownerDocument.getAnonymousElementByAttribute (tab, 'anonid', BADGE_ANONID);
+				let tabBadgeLayer = tab.ownerDocument.getAnonymousElementByAttribute (tab, 'anonid', BADGE_LAYER_ANONID);
+				if (!!tabBadge || !!tabBadgeLayer) {
+					shouldShow = true;
 				}
 			}
 		}
@@ -322,33 +323,38 @@ function titleChanged (event) {
 	}, 100);
 }
 
-function isBlacklisted (tab) {
+function isBlacklisted(uri) {
+	let list = whitelistMode ? whitelist : blacklist;
+	let inList;
+
 	try {
-		let uri = tab.linkedBrowser.currentURI;
-		let host = uri.host;
-		if (whitelistMode) {
-			if (!!host && whitelist.indexOf (host) < 0) {
-				return true;
-			}
+		if (uri.schemeIs("file")) {
+			inList = list.some(function(listItem) {
+				return uri.spec.indexOf(listItem) == 0;
+			});
 		} else {
-			if (!!host && blacklist.indexOf (host) >= 0) {
-				return true;
-			}
+			let host = uri.host;
+			if (!host)
+				return false;
+			inList = list.indexOf(host) >= 0;
 		}
+
+		if ((whitelistMode && !inList) || (!whitelistMode && inList))
+			return true;
 	} catch (e) {
 	}
 	return false;
 }
 
 function updateBadge (tab) {
-	if (isBlacklisted (tab)) {
+	let uri = tab.linkedBrowser.currentURI;
+	if (isBlacklisted(uri)) {
 		removeBadge (tab);
 		return;
 	}
 
 	let regex = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
 	let match = regex.exec (tab.linkedBrowser.contentDocument.title);
-	let uri = tab.linkedBrowser.currentURI;
 	if (!match && uri.schemeIs ('https') && uri.host == 'mail.google.com' && !/#contact/.test (uri.path)) {
 		// originally from http://userscripts.org/scripts/review/39432, but improved!
 		try {
