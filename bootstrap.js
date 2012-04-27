@@ -18,17 +18,17 @@ const STYLE_SMALL = 2;
 const MODE_BLACKLIST = 1;
 const MODE_WHITELIST = 2;
 
-var prefs;
-var forecolor;
-var backcolor;
-var smallBadge;
-var whitelistMode;
-var blacklist;
-var whitelist;
-var resProt;
-var piData;
+let prefs;
+let forecolor;
+let backcolor;
+let smallBadge;
+let whitelistMode;
+let blacklist;
+let whitelist;
+let resProt;
+let piData;
 
-var syncedPrefs = ['blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+let syncedPrefs = ['blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
 
 function install(params, aReason) {
 }
