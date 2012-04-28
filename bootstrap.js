@@ -18,6 +18,8 @@ const STYLE_SMALL = 2;
 const MODE_BLACKLIST = 1;
 const MODE_WHITELIST = 2;
 
+const TITLE_REGEXP = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
+
 let prefs;
 let forecolor;
 let backcolor;
@@ -29,6 +31,7 @@ let resProt;
 let piData;
 
 let syncedPrefs = ['blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+let mutationOptions = { childList: true, characterData: true, subtree: true };
 
 function install(params, aReason) {
 }
@@ -354,82 +357,64 @@ function updateBadge(tab) {
     return;
   }
 
-  let regex = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
-  let match = regex.exec(tab.linkedBrowser.contentDocument.title);
-  if (!match && uri.schemeIs('https') && uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
-    // originally from http://userscripts.org/scripts/review/39432, but improved!
-    try {
-      let frame = tab.linkedBrowser.contentDocument.getElementById('canvas_frame');
-          if (frame) {
-            let span = frame.contentDocument.getElementsByClassName('n0')[0];
-            if (span) {
-          match = regex.exec(span.textContent);
-        }
-        let list = frame.contentDocument.getElementsByClassName('n3')[0];
-        if (list && !list.tb_textContent) {
-          list.tb_textContent = list.textContent;
-          list.addEventListener('DOMSubtreeModified', function(event) {
-            if (list.textContent != list.tb_textContent) {
-              updateBadge(tab);
-              list.tb_textContent = list.textContent;
-            }
-          }, false);
-        }
-      }
-    } catch (e) {
-      Cu.reportError(e);
-    }
+  let match = TITLE_REGEXP.exec(tab.linkedBrowser.contentDocument.title);
+  if (match) {
+    tab.removeAttribute('titlechanged');
   }
   let badgeValue = match ? parseInt(match[1], 10) : 0;
 
-  if (match)
-    tab.removeAttribute('titlechanged');
-
-  if (!match && uri.schemeIs('https') && uri.host == 'plus.google.com') {
-    try {
-      let span = tab.linkedBrowser.contentDocument.getElementById('gbi1');
-      if (span) {
-        badgeValue = parseInt(span.textContent, 10);
-        if (!span.tb_textContent) {
-          span.tb_textContent = span.textContent;
-          span.addEventListener('DOMSubtreeModified', function(event) {
-            if (span.textContent != span.tb_textContent) {
-              updateBadge(tab);
-              span.tb_textContent = span.textContent;
-            }
-          }, false);
-        }
-      }
-    } catch (e) {
-      Cu.reportError(e);
+  if (uri.schemeIs('https')) {
+    if (uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
+      getElement(tab.linkedBrowser.contentWindow, '#canvas_frame', function(frameTarget) {
+        getElement(frameTarget.contentWindow, '.n3', function(target) {
+          addObserver(tab, target, function(target) {
+            let innerTarget = target.querySelector('.n0');
+            match = TITLE_REGEXP.exec(innerTarget.textContent);
+            badgeValue = match ? parseInt(match[1], 10) : 0;
+            return badgeValue;
+          });
+        });
+      });
+      return;
+    } else if (uri.host == 'plus.google.com') {
+      getElement(tab.linkedBrowser.contentWindow, '#gbi1', function(target) {
+        addObserver(tab, target, function(target) {
+          return parseInt(target.textContent, 10);
+        });
+      });
+      return;
     }
   }
 
-  let document = tab.ownerDocument;
-  let window = document.defaultView;
-  let tabBrowserTabs = document.getElementById('tabbrowser-tabs');
-  let tabBadge = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
-  let tabBadgeLayer = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
-  let tabBadgeSmall = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
+  updateBadgeWithValue(tab, badgeValue, match);
+}
 
+function updateBadgeWithValue(tab, badgeValue, match) {
   if (!badgeValue) {
     removeBadge(tab);
     return;
   }
 
+  let chromeDocument = tab.ownerDocument;
+  let chromeWindow = chromeDocument.defaultView;
+  let tabBrowserTabs = chromeDocument.getElementById('tabbrowser-tabs');
+  let tabBadge = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
+  let tabBadgeLayer = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
+  let tabBadgeSmall = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
+
   if (smallBadge) {
     removeBadge(tab, false, true);
     if (!tabBadgeLayer) {
-      tabBadgeLayer = document.createElementNS(XULNS, 'hbox');
+      tabBadgeLayer = chromeDocument.createElementNS(XULNS, 'hbox');
       tabBadgeLayer.setAttribute('anonid', BADGE_LAYER_ANONID);
       tabBadgeLayer.setAttribute('left', '0');
 
-      tabBadgeSmall = document.createElementNS(XULNS, 'image');
+      tabBadgeSmall = chromeDocument.createElementNS(XULNS, 'image');
       tabBadgeSmall.setAttribute('anonid', BADGE_SMALL_ANONID);
       tabBadgeSmall.setAttribute('class', 'tab-badge-small tab-icon-image');
       tabBadgeSmall.setAttribute('fadein', 'true');
       tabBadgeLayer.appendChild(tabBadgeSmall);
-      document.getAnonymousElementByAttribute(tab, 'class', 'tab-stack').appendChild(tabBadgeLayer);
+      chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-stack').appendChild(tabBadgeLayer);
 
       tabBadgeLayer.setAttribute('top', tabBadgeLayer.clientHeight - 16);
     }
@@ -451,7 +436,7 @@ function updateBadge(tab) {
         return;
       }
     } else {
-      tabBadge = document.createElementNS(XULNS, 'label');
+      tabBadge = chromeDocument.createElementNS(XULNS, 'label');
       tabBadge.setAttribute('anonid', BADGE_ANONID);
       tabBadge.className = 'tab-badge tab-text';
       if (Services.appinfo.OS == 'WINNT') {
@@ -460,10 +445,10 @@ function updateBadge(tab) {
       tabBadge.style.color = forecolor;
       tabBadge.style.backgroundColor = backcolor;
 
-      let closeButton = document.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
+      let closeButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
       if (!closeButton) {
         // look for the Tab Mix Plus close button
-        let tmpCloseButton = document.getAnonymousElementByAttribute(tab, 'anonid', 'tmp-close-button');
+        let tmpCloseButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'tmp-close-button');
         if (tmpCloseButton) {
           // Tab Mix Plus has two close buttons, which is just annoying
           closeButton = tmpCloseButton.parentNode.lastChild;
@@ -476,7 +461,7 @@ function updateBadge(tab) {
       }
       closeButton.parentNode.insertBefore(tabBadge, closeButton);
 
-      window.setTimeout(function() {
+      chromeWindow.setTimeout(function() {
         tabBadge.style.borderBottomLeftRadius =
           tabBadge.style.borderBottomRightRadius =
           tabBadge.style.borderTopLeftRadius =
@@ -491,7 +476,7 @@ function updateBadge(tab) {
 
     tabBadge.style.width = '';
     tabBadge.setAttribute('value', badgeValue);
-    window.setTimeout(function() {
+    chromeWindow.setTimeout(function() {
       if (tabBadge.clientWidth <= parseInt(tabBadge.style.minWidth)) {
         tabBadge.style.width = tabBadge.clientWidth + 'px';
       }
@@ -559,6 +544,41 @@ function fixBinding(event) {
 
 function updateOnRearrange(event) {
   updateBadge(event.target);
+}
+
+function getElement(window, selector, callback) {
+  if (window.document.readyState == 'complete') {
+    let target = window.document.querySelector(selector);
+    if (target) {
+      callback(target);
+    }
+  } else {
+    window.addEventListener('DOMContentLoaded', function pageLoadListener(event) {
+      window.removeEventListener('DOMContentLoaded', pageLoadListener, false);
+      let target = window.document.querySelector(selector);
+      if (target) {
+        callback(target);
+      }
+    }, false);
+  }
+}
+
+function addObserver(tab, target, test) {
+  let badgeValue = test(target);
+  updateBadgeWithValue(tab, badgeValue);
+
+  let contentWindow = target.ownerDocument.defaultView;
+  if (!('tb_observer' in target)) {
+    target.tb_badgeValue = badgeValue;
+    target.tb_observer = new contentWindow.MozMutationObserver(function(records, observer) {
+      let newBadgeValue = test(target);
+      if (target.tb_badgeValue != newBadgeValue) {
+        target.tb_badgeValue = newBadgeValue;
+        updateBadgeWithValue(tab, newBadgeValue);
+      }
+    });
+    target.tb_observer.observe(target, mutationOptions);
+  }
 }
 
 function drawNumber(document, number) {

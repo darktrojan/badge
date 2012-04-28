@@ -27,11 +27,14 @@ function reset () {
 </script>
 </head>
 
-<body onload="start();">
+<body><!-- onload="start();">-->
 <button id="start" type="button" onclick="start ();">Start</button>
 <button id="stop" type="button" onclick="stop ();">Stop</button>
 <button type="button" onclick="reset ();">Reset</button>
 <button type="button" onclick="b++; setTitle ();">+1</button>
 <button type="button" onclick="b--; setTitle ();">-1</button>
+
+<div id="moo"></div><input/><input type="button" onclick="this.previousSibling.previousSibling.textContent = this.previousSibling.value"/>
+
 </body>
 </html>
