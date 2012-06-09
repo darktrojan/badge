@@ -570,7 +570,8 @@ function addObserver(tab, target, test) {
   let contentWindow = target.ownerDocument.defaultView;
   if (!('tb_observer' in target)) {
     target.tb_badgeValue = badgeValue;
-    target.tb_observer = new contentWindow.MozMutationObserver(function(records, observer) {
+    let M = contentWindow.MozMutationObserver || contentWindow.MutationObserver;
+    target.tb_observer = new M(function(records, observer) {
       let newBadgeValue = test(target);
       if (target.tb_badgeValue != newBadgeValue) {
         target.tb_badgeValue = newBadgeValue;
