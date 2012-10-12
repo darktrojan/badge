@@ -365,8 +365,9 @@ function updateBadge(tab) {
 
   if (uri.schemeIs('https')) {
     if (uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
-      getElement(tab.linkedBrowser.contentWindow, '#canvas_frame', function(frameTarget) {
-        getElement(frameTarget.contentWindow, '.n3', function(target) {
+      // getElement(tab.linkedBrowser.contentWindow, '#canvas_frame', function(frameTarget) {
+        // getElement(frameTarget.contentWindow, '.n3', function(target) {
+        getElement(tab.linkedBrowser.contentWindow, '.n3', function(target) {
           addObserver(tab, target, function(target) {
             let innerTarget = target.querySelector('.n0');
             match = TITLE_REGEXP.exec(innerTarget.textContent);
@@ -374,7 +375,7 @@ function updateBadge(tab) {
             return badgeValue;
           });
         });
-      });
+      // });
       return;
     } else if (uri.host == 'plus.google.com') {
       getElement(tab.linkedBrowser.contentWindow, '#gbi1', function(target) {
