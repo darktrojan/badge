@@ -156,6 +156,12 @@ function paint(win) {
     for (let i = 0; i < tabs.length; i++) {
       updateBadge(tabs[i]);
     }
+
+    win.addEventListener('SSWindowStateReady', function() {
+      for (let i = 0; i < tabs.length; i++) {
+        updateBadge(tabs[i]);
+      }
+    }, false);
   }
 }
 function unpaint(win) {
@@ -357,7 +363,7 @@ function updateBadge(tab) {
     return;
   }
 
-  let match = TITLE_REGEXP.exec(tab.linkedBrowser.contentDocument.title);
+  let match = TITLE_REGEXP.exec(tab.label);
   if (match) {
     tab.removeAttribute('titlechanged');
   }
@@ -365,17 +371,14 @@ function updateBadge(tab) {
 
   if (uri.schemeIs('https')) {
     if (uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
-      // getElement(tab.linkedBrowser.contentWindow, '#canvas_frame', function(frameTarget) {
-        // getElement(frameTarget.contentWindow, '.n3', function(target) {
-        getElement(tab.linkedBrowser.contentWindow, '.n3', function(target) {
-          addObserver(tab, target, function(target) {
-            let innerTarget = target.querySelector('.n0');
-            match = TITLE_REGEXP.exec(innerTarget.textContent);
-            badgeValue = match ? parseInt(match[1], 10) : 0;
-            return badgeValue;
-          });
+      getElement(tab.linkedBrowser.contentWindow, '.n3', function(target) {
+        addObserver(tab, target, function(target) {
+          let innerTarget = target.querySelector('.n0');
+          match = TITLE_REGEXP.exec(innerTarget.textContent);
+          badgeValue = match ? parseInt(match[1], 10) : 0;
+          return badgeValue;
         });
-      // });
+      });
       return;
     } else if (uri.host == 'plus.google.com') {
       getElement(tab.linkedBrowser.contentWindow, '#gbi1', function(target) {
@@ -425,7 +428,6 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadgeSmall.removeAttribute('pinned');
     }
     tabBadgeSmall.setAttribute('src', drawNumber(tab.ownerDocument, badgeValue));
-//  tab.addEventListener ('DOMAttrModified', updateBadgeAttributes, false);
 
   } else {
     removeBadge(tab, true, false);
@@ -507,7 +509,6 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     let tabBadgeLayer = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
     if (tabBadgeLayer) {
       tabBadgeLayer.parentNode.removeChild(tabBadgeLayer);
-//    tab.removeEventListener ('DOMAttrModified', updateBadgeAttributes, false);
     }
   }
 }
@@ -532,16 +533,6 @@ function fixBinding(event) {
     break;
   }
 }
-
-//function updateBadgeAttributes (event) {
-//  let tab = event.target;
-//  if (tab.localName != 'tab')
-//    return;
-//
-//  if (event.attrName == 'pinned' || event.attrName == 'busy') {
-//    updateBadge (tab);
-//  }
-//}
 
 function updateOnRearrange(event) {
   updateBadge(event.target);
