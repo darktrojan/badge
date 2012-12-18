@@ -152,16 +152,9 @@ function paint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.addEventListener('TabMove', updateOnRearrange, false);
-    let tabs = tabbrowserTabs.getElementsByTagName('tab');
-    for (let i = 0; i < tabs.length; i++) {
-      updateBadge(tabs[i]);
-    }
+    enumerateWindowTabs(win, updateBadge);
 
-    win.addEventListener('SSWindowStateReady', function() {
-      for (let i = 0; i < tabs.length; i++) {
-        updateBadge(tabs[i]);
-      }
-    }, false);
+    win.addEventListener('SSWindowStateReady', updateOnSessionRestore, false);
   }
 }
 function unpaint(win) {
@@ -173,10 +166,9 @@ function unpaint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.removeEventListener('TabMove', updateOnRearrange, false);
-    let tabs = tabbrowserTabs.getElementsByTagName('tab');
-    for (let i = 0; i < tabs.length; i++) {
-      removeBadge(tabs[i]);
-    }
+    enumerateWindowTabs(win, removeBadge);
+
+    win.removeEventListener('SSWindowStateReady', updateOnSessionRestore, false);
 
     let tabContextMenu = document.getElementById('tabContextMenu');
     tabContextMenu.removeEventListener('popupshowing', popupShowing, false);
@@ -312,10 +304,14 @@ function enumerateTabs(callback) {
   let windowEnum = Services.wm.getEnumerator('navigator:browser');
   while (windowEnum.hasMoreElements()) {
     let window = windowEnum.getNext();
-    let tabs = window.gBrowser.tabs;
-    for (let i = 0; i < tabs.length; i++) {
-      callback(tabs[i]);
-    }
+    enumerateWindowTabs(window, callback);
+  }
+}
+
+function enumerateWindowTabs(window, callback) {
+  let tabs = window.gBrowser.tabs;
+  for (let i = 0; i < tabs.length; i++) {
+    callback(tabs[i]);
   }
 }
 
@@ -536,6 +532,11 @@ function fixBinding(event) {
 
 function updateOnRearrange(event) {
   updateBadge(event.target);
+}
+
+function updateOnSessionRestore(event) {
+  let win = event.target;
+  enumerateWindowTabs(win, updateBadge);
 }
 
 function getElement(window, selector, callback) {
