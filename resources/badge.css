@@ -1,6 +1,11 @@
 .tab-badge {
   text-align: center;
   padding: 0 4px;
+  animation-name: jump;
+  animation-duration: 250ms;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 5;
+  animation-direction: alternate;
 }
 
 tab:not([pinned]) .tab-badge {
@@ -19,4 +24,15 @@ tab[pinned="true"] .tab-badge {
 tab[pinned="true"] .tab-badge.winstripe {
   -moz-margin-start: -3px !important;
   -moz-margin-end: 5px !important;
+}
+
+@keyframes jump {
+	0% {
+		opacity: 0.5;
+		transform: scale(1.5, 1.5);
+	}
+	100% {
+		opacity: 1;
+		transform: none;
+	}
 }

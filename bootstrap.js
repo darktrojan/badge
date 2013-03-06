@@ -29,8 +29,9 @@ let blacklist;
 let whitelist;
 let resProt;
 let piData;
+let animating;
 
-let syncedPrefs = ['blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
 let mutationOptions = { childList: true, characterData: true, subtree: true };
 
 function install(params, aReason) {
@@ -52,6 +53,7 @@ function startup(params, aReason) {
   defaultPrefs.setCharPref('backcolor', '#CC0000');
   defaultPrefs.setIntPref('style', STYLE_LARGE);
   defaultPrefs.setIntPref('mode', MODE_BLACKLIST);
+  defaultPrefs.setBoolPref('animating', true);
 
   syncedPrefs.forEach(function(name) {
     syncDefaultPrefs.setBoolPref(name, true);
@@ -64,6 +66,7 @@ function startup(params, aReason) {
     backcolor = prefs.getCharPref('backcolor');
     smallBadge = prefs.getIntPref('style') == STYLE_SMALL;
     whitelistMode = prefs.getIntPref('mode') == MODE_WHITELIST;
+    animating = prefs.getBoolPref('animating');
 
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
@@ -233,6 +236,9 @@ let obs = {
       case 'mode':
         whitelistMode = prefs.getIntPref('mode') == MODE_WHITELIST;
         enumerateTabs(updateBadge);
+        break;
+      case 'animating':
+        animating = prefs.getBoolPref('animating');
         break;
       }
       break;
@@ -443,6 +449,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       }
       tabBadge.style.color = forecolor;
       tabBadge.style.backgroundColor = backcolor;
+      tabBadge.style.animation = 'none';
 
       let closeButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
       if (!closeButton) {
@@ -468,10 +475,16 @@ function updateBadgeWithValue(tab, badgeValue, match) {
         tabBadge.style.minWidth = tabBadge.clientHeight + 'px';
       }, 0);
 
+      tabBadge.addEventListener('animationend', function() {
+        tabBadge.style.animation = 'none';
+      }, false);
+
       tab.addEventListener('TabAttrModified', fixBinding, false);
       tab.addEventListener('TabPinned', fixBinding, false);
       tab.addEventListener('TabUnpinned', fixBinding, false);
     }
+
+    let oldValue = parseInt(tabBadge.getAttribute('value')) || 0;
 
     tabBadge.style.width = '';
     tabBadge.setAttribute('value', badgeValue);
@@ -482,6 +495,9 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     }, 0);
     if (tab.pinned) {
       tabBrowserTabs._positionPinnedTabs();
+    }
+    if (animating && parseInt(badgeValue) > oldValue) {
+      tabBadge.style.animation = null;
     }
   }
 }

@@ -19,4 +19,5 @@
 	<setting type="string" pref="extensions.tabbadge.whitelist" title="Whitelisted Domains">Separate domains with a space</setting>
 	<setting type="color" pref="extensions.tabbadge.backcolor" title="Background Colour" />
 	<setting type="color" pref="extensions.tabbadge.forecolor" title="Foreground Colour" />
+	<setting type="bool" pref="extensions.tabbadge.animating" title="Animate Badge" />
 </settings>
