@@ -4,7 +4,7 @@
   animation-name: jump;
   animation-duration: 250ms;
   animation-timing-function: ease-in-out;
-  animation-iteration-count: 5;
+  animation-iteration-count: 6;
   animation-direction: alternate;
 }
 
@@ -27,12 +27,12 @@ tab[pinned="true"] .tab-badge.winstripe {
 }
 
 @keyframes jump {
-	0% {
-		opacity: 0.5;
-		transform: scale(1.5, 1.5);
-	}
-	100% {
-		opacity: 1;
-		transform: none;
-	}
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1.5, 1.5);
+  }
 }
