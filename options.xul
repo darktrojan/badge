@@ -1,5 +1,6 @@
 <settings xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<setting type="menulist" pref="extensions.tabbadge.style" title="Badge Style">
+	<setting id="tabbadge-style"
+		type="menulist" pref="extensions.tabbadge.style" title="Badge Style">
 		<menulist sizetopopup="always">
 			<menupopup>
 				<menuitem label="Badge inside tab" value="1" />
@@ -7,6 +8,8 @@
 			</menupopup>
 		</menulist>
 	</setting>
+	<setting id="tabbadge-animating"
+		type="bool" pref="extensions.tabbadge.animating" title="Animate Badge" />
 	<setting type="menulist" pref="extensions.tabbadge.mode" title="Blacklist Mode">
 		<menulist sizetopopup="always">
 			<menupopup>
@@ -19,5 +22,4 @@
 	<setting type="string" pref="extensions.tabbadge.whitelist" title="Whitelisted Domains">Separate domains with a space</setting>
 	<setting type="color" pref="extensions.tabbadge.backcolor" title="Background Colour" />
 	<setting type="color" pref="extensions.tabbadge.forecolor" title="Foreground Colour" />
-	<setting type="bool" pref="extensions.tabbadge.animating" title="Animate Badge" />
 </settings>

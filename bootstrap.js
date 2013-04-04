@@ -97,11 +97,15 @@ function startup(params, aReason) {
     paint(windowEnum.getNext());
   }
   Services.ww.registerNotification(obs);
+
+  Services.obs.addObserver(obs, 'addon-options-displayed', false);
 }
 function shutdown(params, aReason) {
   if (aReason == APP_SHUTDOWN) {
     return;
   }
+
+  Services.obs.removeObserver(obs, 'addon-options-displayed');
 
   let windowEnum = Services.wm.getEnumerator('navigator:browser');
   while (windowEnum.hasMoreElements()) {
@@ -240,6 +244,21 @@ let obs = {
       case 'animating':
         animating = prefs.getBoolPref('animating');
         break;
+      }
+      break;
+    case 'addon-options-displayed':
+      if (aData == ADDON_ID) {
+        let styleControl = aSubject.getElementById('tabbadge-style').firstElementChild;
+        let animatingControl = aSubject.getElementById('tabbadge-animating');
+        function disableAnimatingControl() {
+          if (styleControl.value == 1) {
+            animatingControl.removeAttribute('disabled');
+          } else {
+            animatingControl.setAttribute('disabled', 'true');
+          }
+        }
+        styleControl.addEventListener('command', disableAnimatingControl);
+        disableAnimatingControl();
       }
       break;
     }
