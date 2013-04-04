@@ -10,7 +10,8 @@
 	</setting>
 	<setting id="tabbadge-animating"
 		type="bool" pref="extensions.tabbadge.animating" title="Animate Badge" />
-	<setting type="menulist" pref="extensions.tabbadge.mode" title="Blacklist Mode">
+	<setting id="tabbadge-mode"
+		type="menulist" pref="extensions.tabbadge.mode" title="Blacklist Mode">
 		<menulist sizetopopup="always">
 			<menupopup>
 				<menuitem label="Do not show for domains on blacklist" value="1" />
@@ -18,8 +19,10 @@
 			</menupopup>
 		</menulist>
 	</setting>
-	<setting type="string" pref="extensions.tabbadge.blacklist" title="Blacklisted Domains">Separate domains with a space</setting>
-	<setting type="string" pref="extensions.tabbadge.whitelist" title="Whitelisted Domains">Separate domains with a space</setting>
+	<setting id="tabbadge-blacklist"
+		type="string" pref="extensions.tabbadge.blacklist" title="Blacklisted Domains">Separate domains with a space</setting>
+	<setting id="tabbadge-whitelist"
+		type="string" pref="extensions.tabbadge.whitelist" title="Whitelisted Domains">Separate domains with a space</setting>
 	<setting type="color" pref="extensions.tabbadge.backcolor" title="Background Colour" />
 	<setting type="color" pref="extensions.tabbadge.forecolor" title="Foreground Colour" />
 </settings>

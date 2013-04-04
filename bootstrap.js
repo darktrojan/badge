@@ -248,17 +248,33 @@ let obs = {
       break;
     case 'addon-options-displayed':
       if (aData == ADDON_ID) {
-        let styleControl = aSubject.getElementById('tabbadge-style').firstElementChild;
-        let animatingControl = aSubject.getElementById('tabbadge-animating');
-        function disableAnimatingControl() {
-          if (styleControl.value == 1) {
-            animatingControl.removeAttribute('disabled');
+        function disableControl(aControl, aDisabled) {
+          if (aDisabled) {
+            aControl.setAttribute('disabled', 'true');
           } else {
-            animatingControl.setAttribute('disabled', 'true');
+            aControl.removeAttribute('disabled');
           }
         }
-        styleControl.addEventListener('command', disableAnimatingControl);
-        disableAnimatingControl();
+
+        let controls = {};
+        for (aName of ['style', 'mode']) {
+          controls[aName] = aSubject.getElementById('tabbadge-' + aName).firstElementChild;
+        }
+        for (aName of ['animating', 'blacklist', 'whitelist']) {
+          controls[aName] = aSubject.getElementById('tabbadge-' + aName);
+        }
+
+        controls.style.addEventListener('command', function() {
+          disableControl(controls.animating, controls.style.value != 1);
+        });
+        controls.mode.addEventListener('command', function() {
+          disableControl(controls.blacklist, controls.mode.value != 1);
+          disableControl(controls.whitelist, controls.mode.value != 2);
+        });
+
+        disableControl(controls.animating, controls.style.value != 1);
+        disableControl(controls.blacklist, controls.mode.value != 1);
+        disableControl(controls.whitelist, controls.mode.value != 2);
       }
       break;
     }
