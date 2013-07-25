@@ -32,7 +32,6 @@ let piData;
 let animating;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
-let mutationOptions = { childList: true, characterData: true, subtree: true };
 
 function install(params, aReason) {
 }
@@ -406,27 +405,6 @@ function updateBadge(tab) {
   }
   let badgeValue = match ? parseInt(match[1], 10) : 0;
 
-  if (uri.schemeIs('https')) {
-    if (uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
-      getElement(tab.linkedBrowser.contentWindow, '.n3', function(target) {
-        addObserver(tab, target, function(target) {
-          let innerTarget = target.querySelector('.n0');
-          match = TITLE_REGEXP.exec(innerTarget.textContent);
-          badgeValue = match ? parseInt(match[1], 10) : 0;
-          return badgeValue;
-        });
-      });
-      return;
-    } else if (uri.host == 'plus.google.com') {
-      getElement(tab.linkedBrowser.contentWindow, '#gbi1', function(target) {
-        addObserver(tab, target, function(target) {
-          return parseInt(target.textContent, 10);
-        });
-      });
-      return;
-    }
-  }
-
   updateBadgeWithValue(tab, badgeValue, match);
 }
 
@@ -588,42 +566,6 @@ function updateOnRearrange(event) {
 function updateOnSessionRestore(event) {
   let win = event.target;
   enumerateWindowTabs(win, updateBadge);
-}
-
-function getElement(window, selector, callback) {
-  if (window.document.readyState == 'complete') {
-    let target = window.document.querySelector(selector);
-    if (target) {
-      callback(target);
-    }
-  } else {
-    window.addEventListener('DOMContentLoaded', function pageLoadListener(event) {
-      window.removeEventListener('DOMContentLoaded', pageLoadListener, false);
-      let target = window.document.querySelector(selector);
-      if (target) {
-        callback(target);
-      }
-    }, false);
-  }
-}
-
-function addObserver(tab, target, test) {
-  let badgeValue = test(target);
-  updateBadgeWithValue(tab, badgeValue);
-
-  let contentWindow = target.ownerDocument.defaultView;
-  if (!('tb_observer' in target)) {
-    target.tb_badgeValue = badgeValue;
-    let M = contentWindow.MozMutationObserver || contentWindow.MutationObserver;
-    target.tb_observer = new M(function(records, observer) {
-      let newBadgeValue = test(target);
-      if (target.tb_badgeValue != newBadgeValue) {
-        target.tb_badgeValue = newBadgeValue;
-        updateBadgeWithValue(tab, newBadgeValue);
-      }
-    });
-    target.tb_observer.observe(target, mutationOptions);
-  }
 }
 
 function drawNumber(document, number) {
