@@ -2,6 +2,7 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
@@ -32,6 +33,10 @@ let piData;
 let animating;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+
+XPCOMUtils.defineLazyGetter(this, 'strings', function() {
+  return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
+});
 
 function install(params, aReason) {
 }
@@ -70,7 +75,7 @@ function startup(params, aReason) {
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
   } catch (e) {
-    Cu.reportError("Tab Badge couldn't start, please try reinstalling it.");
+    Cu.reportError(strings.GetStringFromName('error.startup'));
     return;
   }
   prefs.addObserver('', obs, false);
@@ -148,7 +153,7 @@ function paint(win) {
         }
         Services.prefs.setCharPref('extensions.tabbadge.' + listName, list.join(' '));
       } catch (e) {
-        Services.console.logStringMessage('Tab Badge can\'t ' + listName + ' ' + uri.spec);
+        Services.console.logStringMessage(strings.formatStringFromName('error.' + listName, [uri.spec], 1));
       }
     }, false);
     tabContextMenu.insertBefore(menuItem, sibling);
@@ -302,38 +307,32 @@ function popupShowing(event) {
 
   let tab = document.popupNode;
   let uri = tab.linkedBrowser.currentURI;
-  let shouldShow = false;
+  let label, hostString;
 
   try {
-    let hostString = uri.schemeIs('file') ? 'this file' : uri.host;
+    hostString = uri.schemeIs('file') ? 'this file' : uri.host;
     let blacklisted = isBlacklisted(uri);
     if (whitelistMode) {
-      if (blacklisted) {
-        menuItem.setAttribute('label', 'Whitelist Tab Badge for ' + hostString);
-      } else {
-        menuItem.setAttribute('label', 'Un-Whitelist Tab Badge for ' + hostString);
-      }
-      shouldShow = true;
+      label = blacklisted ? 'whitelist' : 'unwhitelist';
     } else {
       if (blacklisted) {
-        menuItem.setAttribute('label', 'Un-Blacklist Tab Badge for ' + hostString);
-        shouldShow = true;
+        label = 'unblacklist';
       } else {
-        menuItem.setAttribute('label', 'Blacklist Tab Badge for ' + hostString);
-
         let tabBadge = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
         let tabBadgeLayer = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
         if (!!tabBadge || !!tabBadgeLayer) {
-          shouldShow = true;
+          label = 'blacklist';
         }
       }
     }
   } catch (e) {
+    Cu.reportError(e);
   }
 
-  if (shouldShow) {
+  if (label) {
     menuSeparator.removeAttribute('collapsed');
     menuItem.removeAttribute('collapsed');
+    menuItem.setAttribute('label', strings.formatStringFromName('domain.' + label, [hostString], 1));
   } else {
     menuSeparator.setAttribute('collapsed', 'true');
     menuItem.setAttribute('collapsed', 'true');
@@ -474,8 +473,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
         }
       }
       if (!closeButton) {
-        Cu.reportError("Tab Badge couldn't find the appropriate place to add a badge. " +
-          'This is probably due to a conflict with another add-on.');
+        Cu.reportError(strings.GetStringFromName('error.conflict'));
         return;
       }
       closeButton.parentNode.insertBefore(tabBadge, closeButton);
