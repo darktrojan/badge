@@ -307,10 +307,9 @@ function popupShowing(event) {
 
   let tab = document.popupNode;
   let uri = tab.linkedBrowser.currentURI;
-  let label, hostString;
+  let label;
 
   try {
-    hostString = uri.schemeIs('file') ? 'this file' : uri.host;
     let blacklisted = isBlacklisted(uri);
     if (whitelistMode) {
       label = blacklisted ? 'whitelist' : 'unwhitelist';
@@ -325,6 +324,11 @@ function popupShowing(event) {
         }
       }
     }
+    if (label && uri.schemeIs('file')) {
+      label = strings.GetStringFromName('domain.' + label + '.file');
+    } else {
+      label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+    }
   } catch (e) {
     Cu.reportError(e);
   }
@@ -332,7 +336,7 @@ function popupShowing(event) {
   if (label) {
     menuSeparator.removeAttribute('collapsed');
     menuItem.removeAttribute('collapsed');
-    menuItem.setAttribute('label', strings.formatStringFromName('domain.' + label, [hostString], 1));
+    menuItem.setAttribute('label', label);
   } else {
     menuSeparator.setAttribute('collapsed', 'true');
     menuItem.setAttribute('collapsed', 'true');
