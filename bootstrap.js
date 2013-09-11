@@ -2,6 +2,7 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 const XHTMLNS = 'http://www.w3.org/1999/xhtml';
@@ -32,7 +33,10 @@ let piData;
 let animating;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
-let mutationOptions = { childList: true, characterData: true, subtree: true };
+
+XPCOMUtils.defineLazyGetter(this, 'strings', function() {
+  return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
+});
 
 function install(params, aReason) {
 }
@@ -71,7 +75,7 @@ function startup(params, aReason) {
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
   } catch (e) {
-    Cu.reportError("Tab Badge couldn't start, please try reinstalling it.");
+    Cu.reportError(strings.GetStringFromName('error.startup'));
     return;
   }
   prefs.addObserver('', obs, false);
@@ -149,7 +153,7 @@ function paint(win) {
         }
         Services.prefs.setCharPref('extensions.tabbadge.' + listName, list.join(' '));
       } catch (e) {
-        Services.console.logStringMessage('Tab Badge can\'t ' + listName + ' ' + uri.spec);
+        Services.console.logStringMessage(strings.formatStringFromName('error.' + listName, [uri.spec], 1));
       }
     }, false);
     tabContextMenu.insertBefore(menuItem, sibling);
@@ -303,38 +307,36 @@ function popupShowing(event) {
 
   let tab = document.popupNode;
   let uri = tab.linkedBrowser.currentURI;
-  let shouldShow = false;
+  let label;
 
   try {
-    let hostString = uri.schemeIs('file') ? 'this file' : uri.host;
     let blacklisted = isBlacklisted(uri);
     if (whitelistMode) {
-      if (blacklisted) {
-        menuItem.setAttribute('label', 'Whitelist Tab Badge for ' + hostString);
-      } else {
-        menuItem.setAttribute('label', 'Un-Whitelist Tab Badge for ' + hostString);
-      }
-      shouldShow = true;
+      label = blacklisted ? 'whitelist' : 'unwhitelist';
     } else {
       if (blacklisted) {
-        menuItem.setAttribute('label', 'Un-Blacklist Tab Badge for ' + hostString);
-        shouldShow = true;
+        label = 'unblacklist';
       } else {
-        menuItem.setAttribute('label', 'Blacklist Tab Badge for ' + hostString);
-
         let tabBadge = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
         let tabBadgeLayer = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
         if (!!tabBadge || !!tabBadgeLayer) {
-          shouldShow = true;
+          label = 'blacklist';
         }
       }
     }
+    if (label && uri.schemeIs('file')) {
+      label = strings.GetStringFromName('domain.' + label + '.file');
+    } else {
+      label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+    }
   } catch (e) {
+    Cu.reportError(e);
   }
 
-  if (shouldShow) {
+  if (label) {
     menuSeparator.removeAttribute('collapsed');
     menuItem.removeAttribute('collapsed');
+    menuItem.setAttribute('label', label);
   } else {
     menuSeparator.setAttribute('collapsed', 'true');
     menuItem.setAttribute('collapsed', 'true');
@@ -406,27 +408,6 @@ function updateBadge(tab) {
   }
   let badgeValue = match ? parseInt(match[1], 10) : 0;
 
-  if (uri.schemeIs('https')) {
-    if (uri.host == 'mail.google.com' && !/#contact/.test(uri.path)) {
-      getElement(tab.linkedBrowser.contentWindow, '.n3', function(target) {
-        addObserver(tab, target, function(target) {
-          let innerTarget = target.querySelector('.n0');
-          match = TITLE_REGEXP.exec(innerTarget.textContent);
-          badgeValue = match ? parseInt(match[1], 10) : 0;
-          return badgeValue;
-        });
-      });
-      return;
-    } else if (uri.host == 'plus.google.com') {
-      getElement(tab.linkedBrowser.contentWindow, '#gbi1', function(target) {
-        addObserver(tab, target, function(target) {
-          return parseInt(target.textContent, 10);
-        });
-      });
-      return;
-    }
-  }
-
   updateBadgeWithValue(tab, badgeValue, match);
 }
 
@@ -496,8 +477,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
         }
       }
       if (!closeButton) {
-        Cu.reportError("Tab Badge couldn't find the appropriate place to add a badge. " +
-          'This is probably due to a conflict with another add-on.');
+        Cu.reportError(strings.GetStringFromName('error.conflict'));
         return;
       }
       closeButton.parentNode.insertBefore(tabBadge, closeButton);
@@ -588,42 +568,6 @@ function updateOnRearrange(event) {
 function updateOnSessionRestore(event) {
   let win = event.target;
   enumerateWindowTabs(win, updateBadge);
-}
-
-function getElement(window, selector, callback) {
-  if (window.document.readyState == 'complete') {
-    let target = window.document.querySelector(selector);
-    if (target) {
-      callback(target);
-    }
-  } else {
-    window.addEventListener('DOMContentLoaded', function pageLoadListener(event) {
-      window.removeEventListener('DOMContentLoaded', pageLoadListener, false);
-      let target = window.document.querySelector(selector);
-      if (target) {
-        callback(target);
-      }
-    }, false);
-  }
-}
-
-function addObserver(tab, target, test) {
-  let badgeValue = test(target);
-  updateBadgeWithValue(tab, badgeValue);
-
-  let contentWindow = target.ownerDocument.defaultView;
-  if (!('tb_observer' in target)) {
-    target.tb_badgeValue = badgeValue;
-    let M = contentWindow.MozMutationObserver || contentWindow.MutationObserver;
-    target.tb_observer = new M(function(records, observer) {
-      let newBadgeValue = test(target);
-      if (target.tb_badgeValue != newBadgeValue) {
-        target.tb_badgeValue = newBadgeValue;
-        updateBadgeWithValue(tab, newBadgeValue);
-      }
-    });
-    target.tb_observer.observe(target, mutationOptions);
-  }
 }
 
 function drawNumber(document, number) {
