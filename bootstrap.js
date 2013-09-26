@@ -324,10 +324,14 @@ function popupShowing(event) {
         }
       }
     }
-    if (label && uri.schemeIs('file')) {
-      label = strings.GetStringFromName('domain.' + label + '.file');
-    } else {
-      label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+    if (label) {
+      if (uri.schemeIs('file')) {
+        label = strings.GetStringFromName('domain.' + label + '.file');
+      } else if (uri.host) {
+        label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+      } else {
+        label = undefined;
+      }
     }
   } catch (e) {
     Cu.reportError(e);
