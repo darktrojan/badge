@@ -425,6 +425,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
   let chromeWindow = chromeDocument.defaultView;
   let tabBrowserTabs = chromeDocument.getElementById('tabbrowser-tabs');
   let tabBadge = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
+  let tabIcon = chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
   let tabBadgeLayer = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
   let tabBadgeSmall = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
 
@@ -432,8 +433,9 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     removeBadge(tab, false, true);
     if (!tabBadgeLayer) {
       tabBadgeLayer = chromeDocument.createElementNS(XULNS, 'hbox');
+      tabBadgeLayer.setAttribute('align', 'center');
       tabBadgeLayer.setAttribute('anonid', BADGE_LAYER_ANONID);
-      tabBadgeLayer.setAttribute('left', '0');
+      tabBadgeLayer.setAttribute('class', 'tab-content');
 
       tabBadgeSmall = chromeDocument.createElementNS(XULNS, 'image');
       tabBadgeSmall.setAttribute('anonid', BADGE_SMALL_ANONID);
@@ -442,7 +444,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadgeLayer.appendChild(tabBadgeSmall);
       chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-stack').appendChild(tabBadgeLayer);
 
-      tabBadgeLayer.setAttribute('top', tabBadgeLayer.clientHeight - 16);
+      tabIcon.style.display = '-moz-box';
     }
     if (tab.hasAttribute('pinned')) {
       tabBadgeSmall.setAttribute('pinned', 'true');
@@ -541,6 +543,8 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     if (tabBadgeLayer) {
       tabBadgeLayer.parentNode.removeChild(tabBadgeLayer);
     }
+    let tabIcon = document.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
+    tabIcon.style.display = null;
   }
 }
 
