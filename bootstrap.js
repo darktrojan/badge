@@ -163,6 +163,9 @@ function paint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.addEventListener('TabMove', updateOnRearrange, false);
+    tabbrowserTabs.addEventListener('TabAttrModified', fixBinding, false);
+    tabbrowserTabs.addEventListener('TabPinned', fixBinding, false);
+    tabbrowserTabs.addEventListener('TabUnpinned', fixBinding, false);
     enumerateWindowTabs(win, updateBadge);
 
     win.addEventListener('SSWindowStateReady', updateOnSessionRestore, false);
@@ -177,6 +180,9 @@ function unpaint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.removeEventListener('TabMove', updateOnRearrange, false);
+    tabbrowserTabs.removeEventListener('TabAttrModified', fixBinding, false);
+    tabbrowserTabs.removeEventListener('TabPinned', fixBinding, false);
+    tabbrowserTabs.removeEventListener('TabUnpinned', fixBinding, false);
     enumerateWindowTabs(win, removeBadge);
 
     win.removeEventListener('SSWindowStateReady', updateOnSessionRestore, false);
@@ -499,10 +505,6 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadge.addEventListener('animationend', function() {
         tabBadge.style.animation = 'none';
       }, false);
-
-      tab.addEventListener('TabAttrModified', fixBinding, false);
-      tab.addEventListener('TabPinned', fixBinding, false);
-      tab.addEventListener('TabUnpinned', fixBinding, false);
     }
 
     let oldValue = parseInt(tabBadge.getAttribute('value')) || 0;
@@ -529,9 +531,6 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     let tabBadge = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
     if (tabBadge) {
       tabBadge.parentNode.removeChild(tabBadge);
-      tab.removeEventListener('TabAttrModified', fixBinding, false);
-      tab.removeEventListener('TabPinned', fixBinding, false);
-      tab.removeEventListener('TabUnpinned', fixBinding, false);
       if (tab.pinned) {
         let tabBrowserTabs = document.getElementById('tabbrowser-tabs');
         tabBrowserTabs._positionPinnedTabs();
@@ -551,13 +550,20 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
 // this function fixes a 'bug' in xbl which occurs because we break the binding
 function fixBinding(event) {
   let tab = event.target;
+  let tabBadgeSmall = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
   let closeButton = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
 
   switch (event.type) {
   case 'TabPinned':
+    if (tabBadgeSmall) {
+      tabBadgeSmall.setAttribute('pinned', 'true');
+    }
     closeButton.setAttribute('pinned', 'true');
     break;
   case 'TabUnpinned':
+    if (tabBadgeSmall) {
+      tabBadgeSmall.removeAttribute('pinned');
+    }
     closeButton.removeAttribute('pinned');
     break;
   case 'TabAttrModified':
