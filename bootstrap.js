@@ -21,6 +21,9 @@ const MODE_WHITELIST = 2;
 
 const TITLE_REGEXP = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
 
+const BROWSER_WINDOW = 'navigator:browser';
+const IDLE_TIMEOUT = 15;
+
 let prefs;
 let forecolor;
 let backcolor;
@@ -37,6 +40,7 @@ let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', '
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
   return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
 });
+XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
 function install(params, aReason) {
 }
@@ -58,6 +62,7 @@ function startup(params, aReason) {
   defaultPrefs.setIntPref('style', STYLE_LARGE);
   defaultPrefs.setIntPref('mode', MODE_BLACKLIST);
   defaultPrefs.setBoolPref('animating', true);
+  defaultPrefs.setCharPref('donationreminder', '0');
 
   syncedPrefs.forEach(function(name) {
     syncDefaultPrefs.setBoolPref(name, true);
@@ -96,13 +101,17 @@ function startup(params, aReason) {
 
   piData = 'href="resource://tabbadge_' + params.version + '/badge.css" type="text/css"';
 
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     paint(windowEnum.getNext());
   }
   Services.ww.registerNotification(obs);
 
   Services.obs.addObserver(obs, 'addon-options-displayed', false);
+
+  if (aReason != ADDON_INSTALL && prefs.getCharPref('donationreminder') == '0') {
+    idleService.addIdleObserver(obs, IDLE_TIMEOUT);
+  }
 }
 function shutdown(params, aReason) {
   if (aReason == APP_SHUTDOWN) {
@@ -111,7 +120,7 @@ function shutdown(params, aReason) {
 
   Services.obs.removeObserver(obs, 'addon-options-displayed');
 
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     unpaint(windowEnum.getNext());
   }
@@ -120,6 +129,11 @@ function shutdown(params, aReason) {
   prefs.removeObserver('', obs);
 
   resProt.setSubstitution('tabbadge_' + params.version, null);
+
+  try {
+    idleService.removeIdleObserver(obs, IDLE_TIMEOUT);
+  } catch (e) { // might be already removed
+  }
 }
 
 function paint(win) {
@@ -287,6 +301,27 @@ let obs = {
         disableControl(controls.whitelist, controls.mode.value != 2);
       }
       break;
+    case 'idle':
+      idleService.removeIdleObserver(this, IDLE_TIMEOUT);
+
+      let version = prefs.getCharPref('version');
+      let recentWindow = Services.wm.getMostRecentWindow(BROWSER_WINDOW);
+      let browser = recentWindow.gBrowser;
+      let notificationBox = browser.getNotificationBox();
+      let message = strings.formatStringFromName('donate.message1', [version], 1);
+      let label = strings.GetStringFromName('donate.button.label');
+      let accessKey = strings.GetStringFromName('donate.button.accesskey');
+
+      notificationBox.appendNotification(message, 'badge-donate', null, notificationBox.PRIORITY_INFO_MEDIUM, [{
+        label: label,
+        accessKey: accessKey,
+        callback: function() {
+          browser.selectedTab = browser.addTab('https://addons.mozilla.org/addon/tab-badge/contribute/installed/');
+        }
+      }]);
+
+      prefs.setCharPref('donationreminder', version);
+      break;
     }
   }
 };
@@ -354,7 +389,7 @@ function popupShowing(event) {
 }
 
 function enumerateTabs(callback) {
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     let window = windowEnum.getNext();
     enumerateWindowTabs(window, callback);
