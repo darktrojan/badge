@@ -1,0 +1,13 @@
+<!ENTITY tabbadge.style "徽章樣式">
+<!ENTITY tabbadge.style.insidetab "在分頁標籤加上徽章">
+<!ENTITY tabbadge.style.onicon "顯示文字於網站圖示上">
+<!ENTITY tabbadge.animating "徽章動畫">
+<!ENTITY tabbadge.mode "黑名單模式">
+<!ENTITY tabbadge.mode.blacklist "不對黑名單網域顯示">
+<!ENTITY tabbadge.mode.whitelist "只對白名單網域顯示">
+<!ENTITY tabbadge.blacklist "黑名單網域">
+<!ENTITY tabbadge.blacklist.desc "以空白分隔網域">
+<!ENTITY tabbadge.whitelist "白名單網域">
+<!ENTITY tabbadge.whitelist.desc "以空白分隔網域">
+<!ENTITY tabbadge.backcolor "背景顏色">
+<!ENTITY tabbadge.forecolor "前景顏色">
