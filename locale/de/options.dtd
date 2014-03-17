@@ -1,0 +1,13 @@
+<!ENTITY tabbadge.style "Badge Style">
+<!ENTITY tabbadge.style.insidetab "Badge im Tab">
+<!ENTITY tabbadge.style.onicon "Text auf Tab Icon">
+<!ENTITY tabbadge.animating "Badge animieren">
+<!ENTITY tabbadge.mode "Badge anzeigen">
+<!ENTITY tabbadge.mode.blacklist "Nicht für unerwünschte Domains">
+<!ENTITY tabbadge.mode.whitelist "Nur für erwünschte Domains">
+<!ENTITY tabbadge.blacklist "Unerwünschte Domains">
+<!ENTITY tabbadge.blacklist.desc "Domains durch Leerzeichen trennen">
+<!ENTITY tabbadge.whitelist "Erwünschte Domains">
+<!ENTITY tabbadge.whitelist.desc "Domains durch Leerzeichen trennen">
+<!ENTITY tabbadge.backcolor "Hintergrundfarbe">
+<!ENTITY tabbadge.forecolor "Vordergrundfarbe">
