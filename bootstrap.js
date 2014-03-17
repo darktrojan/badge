@@ -21,6 +21,9 @@ const MODE_WHITELIST = 2;
 
 const TITLE_REGEXP = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
 
+const BROWSER_WINDOW = 'navigator:browser';
+const IDLE_TIMEOUT = 15;
+
 let prefs;
 let forecolor;
 let backcolor;
@@ -37,6 +40,7 @@ let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', '
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
   return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
 });
+XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
 function install(params, aReason) {
 }
@@ -58,6 +62,7 @@ function startup(params, aReason) {
   defaultPrefs.setIntPref('style', STYLE_LARGE);
   defaultPrefs.setIntPref('mode', MODE_BLACKLIST);
   defaultPrefs.setBoolPref('animating', true);
+  defaultPrefs.setCharPref('donationreminder', '0');
 
   syncedPrefs.forEach(function(name) {
     syncDefaultPrefs.setBoolPref(name, true);
@@ -96,13 +101,17 @@ function startup(params, aReason) {
 
   piData = 'href="resource://tabbadge_' + params.version + '/badge.css" type="text/css"';
 
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     paint(windowEnum.getNext());
   }
   Services.ww.registerNotification(obs);
 
   Services.obs.addObserver(obs, 'addon-options-displayed', false);
+
+  if (aReason != ADDON_INSTALL && prefs.getCharPref('donationreminder') == '0') {
+    idleService.addIdleObserver(obs, IDLE_TIMEOUT);
+  }
 }
 function shutdown(params, aReason) {
   if (aReason == APP_SHUTDOWN) {
@@ -111,7 +120,7 @@ function shutdown(params, aReason) {
 
   Services.obs.removeObserver(obs, 'addon-options-displayed');
 
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     unpaint(windowEnum.getNext());
   }
@@ -120,6 +129,11 @@ function shutdown(params, aReason) {
   prefs.removeObserver('', obs);
 
   resProt.setSubstitution('tabbadge_' + params.version, null);
+
+  try {
+    idleService.removeIdleObserver(obs, IDLE_TIMEOUT);
+  } catch (e) { // might be already removed
+  }
 }
 
 function paint(win) {
@@ -163,6 +177,9 @@ function paint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.addEventListener('TabMove', updateOnRearrange, false);
+    tabbrowserTabs.addEventListener('TabAttrModified', fixBinding, false);
+    tabbrowserTabs.addEventListener('TabPinned', fixBinding, false);
+    tabbrowserTabs.addEventListener('TabUnpinned', fixBinding, false);
     enumerateWindowTabs(win, updateBadge);
 
     win.addEventListener('SSWindowStateReady', updateOnSessionRestore, false);
@@ -177,6 +194,9 @@ function unpaint(win) {
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.removeEventListener('TabMove', updateOnRearrange, false);
+    tabbrowserTabs.removeEventListener('TabAttrModified', fixBinding, false);
+    tabbrowserTabs.removeEventListener('TabPinned', fixBinding, false);
+    tabbrowserTabs.removeEventListener('TabUnpinned', fixBinding, false);
     enumerateWindowTabs(win, removeBadge);
 
     win.removeEventListener('SSWindowStateReady', updateOnSessionRestore, false);
@@ -281,6 +301,27 @@ let obs = {
         disableControl(controls.whitelist, controls.mode.value != 2);
       }
       break;
+    case 'idle':
+      idleService.removeIdleObserver(this, IDLE_TIMEOUT);
+
+      let version = prefs.getCharPref('version');
+      let recentWindow = Services.wm.getMostRecentWindow(BROWSER_WINDOW);
+      let browser = recentWindow.gBrowser;
+      let notificationBox = browser.getNotificationBox();
+      let message = strings.formatStringFromName('donate.message1', [version], 1);
+      let label = strings.GetStringFromName('donate.button.label');
+      let accessKey = strings.GetStringFromName('donate.button.accesskey');
+
+      notificationBox.appendNotification(message, 'badge-donate', null, notificationBox.PRIORITY_INFO_MEDIUM, [{
+        label: label,
+        accessKey: accessKey,
+        callback: function() {
+          browser.selectedTab = browser.addTab('https://addons.mozilla.org/addon/tab-badge/contribute/installed/');
+        }
+      }]);
+
+      prefs.setCharPref('donationreminder', version);
+      break;
     }
   }
 };
@@ -324,10 +365,14 @@ function popupShowing(event) {
         }
       }
     }
-    if (label && uri.schemeIs('file')) {
-      label = strings.GetStringFromName('domain.' + label + '.file');
-    } else {
-      label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+    if (label) {
+      if (uri.schemeIs('file')) {
+        label = strings.GetStringFromName('domain.' + label + '.file');
+      } else if (uri.host) {
+        label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+      } else {
+        label = undefined;
+      }
     }
   } catch (e) {
     Cu.reportError(e);
@@ -344,7 +389,7 @@ function popupShowing(event) {
 }
 
 function enumerateTabs(callback) {
-  let windowEnum = Services.wm.getEnumerator('navigator:browser');
+  let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     let window = windowEnum.getNext();
     enumerateWindowTabs(window, callback);
@@ -421,6 +466,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
   let chromeWindow = chromeDocument.defaultView;
   let tabBrowserTabs = chromeDocument.getElementById('tabbrowser-tabs');
   let tabBadge = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
+  let tabIcon = chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
   let tabBadgeLayer = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
   let tabBadgeSmall = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
 
@@ -428,8 +474,9 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     removeBadge(tab, false, true);
     if (!tabBadgeLayer) {
       tabBadgeLayer = chromeDocument.createElementNS(XULNS, 'hbox');
+      tabBadgeLayer.setAttribute('align', 'center');
       tabBadgeLayer.setAttribute('anonid', BADGE_LAYER_ANONID);
-      tabBadgeLayer.setAttribute('left', '0');
+      tabBadgeLayer.setAttribute('class', 'tab-content');
 
       tabBadgeSmall = chromeDocument.createElementNS(XULNS, 'image');
       tabBadgeSmall.setAttribute('anonid', BADGE_SMALL_ANONID);
@@ -438,7 +485,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadgeLayer.appendChild(tabBadgeSmall);
       chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-stack').appendChild(tabBadgeLayer);
 
-      tabBadgeLayer.setAttribute('top', tabBadgeLayer.clientHeight - 16);
+      tabIcon.style.display = '-moz-box';
     }
     if (tab.hasAttribute('pinned')) {
       tabBadgeSmall.setAttribute('pinned', 'true');
@@ -493,10 +540,6 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadge.addEventListener('animationend', function() {
         tabBadge.style.animation = 'none';
       }, false);
-
-      tab.addEventListener('TabAttrModified', fixBinding, false);
-      tab.addEventListener('TabPinned', fixBinding, false);
-      tab.addEventListener('TabUnpinned', fixBinding, false);
     }
 
     let oldValue = parseInt(tabBadge.getAttribute('value')) || 0;
@@ -523,9 +566,6 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     let tabBadge = document.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
     if (tabBadge) {
       tabBadge.parentNode.removeChild(tabBadge);
-      tab.removeEventListener('TabAttrModified', fixBinding, false);
-      tab.removeEventListener('TabPinned', fixBinding, false);
-      tab.removeEventListener('TabUnpinned', fixBinding, false);
       if (tab.pinned) {
         let tabBrowserTabs = document.getElementById('tabbrowser-tabs');
         tabBrowserTabs._positionPinnedTabs();
@@ -537,19 +577,28 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     if (tabBadgeLayer) {
       tabBadgeLayer.parentNode.removeChild(tabBadgeLayer);
     }
+    let tabIcon = document.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
+    tabIcon.style.display = null;
   }
 }
 
 // this function fixes a 'bug' in xbl which occurs because we break the binding
 function fixBinding(event) {
   let tab = event.target;
+  let tabBadgeSmall = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
   let closeButton = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
 
   switch (event.type) {
   case 'TabPinned':
+    if (tabBadgeSmall) {
+      tabBadgeSmall.setAttribute('pinned', 'true');
+    }
     closeButton.setAttribute('pinned', 'true');
     break;
   case 'TabUnpinned':
+    if (tabBadgeSmall) {
+      tabBadgeSmall.removeAttribute('pinned');
+    }
     closeButton.removeAttribute('pinned');
     break;
   case 'TabAttrModified':

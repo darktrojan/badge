@@ -18,12 +18,7 @@ tab:not([pinned]) .tab-badge {
 }
 
 tab[pinned="true"] .tab-badge {
-  -moz-margin-end: 2px !important;
-}
-
-tab[pinned="true"] .tab-badge.winstripe {
-  -moz-margin-start: -3px !important;
-  -moz-margin-end: 5px !important;
+  -moz-margin-start: 3px !important;
 }
 
 @keyframes jump {
