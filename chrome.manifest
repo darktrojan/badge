@@ -1,2 +1,4 @@
 locale tabbadge en-US locale/en-US/
+locale tabbadge de    locale/de/
 locale tabbadge zh-CN locale/zh-CN/
+locale tabbadge zh-TW locale/zh-TW/
