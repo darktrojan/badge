@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
 	<Description about="urn:mozilla:install-manifest">
@@ -17,6 +17,14 @@
 				<em:maxVersion>30.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
+
+		<em:localized>
+			<Description>
+				<em:locale>zh-CN</em:locale>
+				<em:name>Tab Badge</em:name>
+				<em:description>添加一个计数标志到标签页 - 非常适合 Facebook 或 Twitter 的通知。</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>
