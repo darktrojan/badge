@@ -20,6 +20,13 @@
 
 		<em:localized>
 			<Description>
+				<em:locale>zh-CN</em:locale>
+				<em:name>Tab Badge</em:name>
+				<em:description>添加一个计数标志到标签页 - 非常适合 Facebook 或 Twitter 的通知。</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
 				<em:locale>zh-TW</em:locale>
 				<em:name>Tab Badge</em:name>
 				<em:description>在您的分頁上加入計數徽章－－超棒的 Facebook 或 Twitter的通知工具！</em:description>
