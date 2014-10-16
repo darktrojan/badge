@@ -109,7 +109,7 @@ function startup(params, aReason) {
 
   Services.obs.addObserver(obs, 'addon-options-displayed', false);
 
-  if (aReason != ADDON_INSTALL && prefs.getCharPref('donationreminder') == '0') {
+  if (aReason != ADDON_INSTALL && Services.vc.compare(prefs.getCharPref('donationreminder'), params.version) == -1) {
     idleService.addIdleObserver(obs, IDLE_TIMEOUT);
   }
 }
