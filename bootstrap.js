@@ -36,6 +36,7 @@ let piData;
 let animating;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+let customRegExps = new Map();
 
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
   return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
@@ -68,7 +69,7 @@ function startup(params, aReason) {
     syncDefaultPrefs.setBoolPref(name, true);
   });
 
-  prefs = Services.prefs.getBranch('extensions.tabbadge.').QueryInterface(Ci.nsIPrefBranch2);
+  prefs = Services.prefs.getBranch('extensions.tabbadge.');
   prefs.setCharPref('version', params.version);
   try {
     forecolor = prefs.getCharPref('forecolor');
@@ -83,6 +84,7 @@ function startup(params, aReason) {
     Cu.reportError(strings.GetStringFromName('error.startup'));
     return;
   }
+  readCustomPref();
   prefs.addObserver('', obs, false);
 
   let resourceURI;
@@ -268,6 +270,10 @@ let obs = {
       case 'animating':
         animating = prefs.getBoolPref('animating');
         break;
+      case 'custom':
+        readCustomPref();
+        enumerateTabs(updateBadge);
+        break;
       }
       break;
     case 'addon-options-displayed':
@@ -338,6 +344,23 @@ function getArrayPref(name) {
     }
   }
   return arr;
+}
+
+function readCustomPref() {
+  customRegExps.clear();
+  if (prefs.getPrefType('custom') != Ci.nsIPrefBranch.PREF_STRING) {
+    return;
+  }
+  try {
+    let obj = JSON.parse(prefs.getCharPref('custom'));
+    for (let [k, v] of Iterator(obj)) {
+      if (typeof v == 'string') {
+        customRegExps.set(k, new RegExp(v));
+      }
+    }
+  } catch (ex) {
+    Cu.reportError(ex);
+  }
 }
 
 function popupShowing(event) {
@@ -448,6 +471,14 @@ function updateBadge(tab) {
   }
 
   let match = TITLE_REGEXP.exec(tab.label);
+  try {
+    if (customRegExps.has(uri.host)) {
+      match = customRegExps.get(uri.host).exec(tab.label);
+    }
+  } catch (ex) {
+    // Call to uri.host might throw.
+  }
+
   if (match) {
     tab.removeAttribute('titlechanged');
   }
