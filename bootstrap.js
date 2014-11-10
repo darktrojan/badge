@@ -174,8 +174,19 @@ function paint(win) {
     }, false);
     tabContextMenu.insertBefore(menuItem, sibling);
 
-    let content = document.getElementById('content');
-    content.addEventListener('DOMTitleChanged', titleChanged, false);
+    if (win.gMultiProcessBrowser) {
+      win._tabBadgeListener = {
+        receiveMessage: function(message) {
+          let tab = win.gBrowser.getTabForBrowser(message.target);
+          updateBadge(tab);
+        }
+      };
+
+      win.messageManager.addMessageListener('DOMTitleChanged', win._tabBadgeListener);
+    } else {
+      let content = document.getElementById('content');
+      content.addEventListener('DOMTitleChanged', titleChanged, false);
+    }
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.addEventListener('TabMove', updateOnRearrange, false);
@@ -191,8 +202,13 @@ function unpaint(win) {
   if (win.location == 'chrome://browser/content/browser.xul') {
     let document = win.document;
 
-    let content = document.getElementById('content');
-    content.removeEventListener('DOMTitleChanged', titleChanged, false);
+    if (win.gMultiProcessBrowser) {
+      win.messageManager.removeMessageListener('DOMTitleChanged', win._tabBadgeListener);
+      delete win._tabBadgeListener;
+    } else {
+      let content = document.getElementById('content');
+      content.removeEventListener('DOMTitleChanged', titleChanged, false);
+    }
 
     let tabbrowserTabs = document.getElementById('tabbrowser-tabs');
     tabbrowserTabs.removeEventListener('TabMove', updateOnRearrange, false);
