@@ -1,40 +1,38 @@
+<!DOCTYPE html>
 <html>
 <head>
-<title>No title</title>
-<script type="text/javascript">
-var b = 0;
-var interval;
-function setTitle() {
-	document.title = '[' + b + '] Test Page';
-}
-function start() {
-	interval = setInterval (function () {
-		b += 1;//Math.floor (Math.random () * 5);
+	<meta charset="utf-8" />
+	<title>No title</title>
+	<script type="text/javascript">
+	var b = 0;
+	var interval;
+	function setTitle() {
+		document.title = '[' + b + '] Test Page';
+	}
+	function start() {
+		interval = setInterval(function() {
+			b += 1;
+			setTitle();
+		}, 10000);
+		document.getElementById('start').disabled = true;
+		document.getElementById('stop').disabled = false;
+	}
+	function stop() {
+		clearInterval(interval);
+		document.getElementById('start').disabled = false;
+		document.getElementById('stop').disabled = true;
+	}
+	function reset() {
+		b = 0;
 		setTitle();
-	}, 15000);
-	document.getElementById('start').disabled = true;
-	document.getElementById('stop').disabled = false;
-}
-function stop() {
-	clearInterval(interval);
-	document.getElementById('start').disabled = false;
-	document.getElementById('stop').disabled = true;
-}
-function reset () {
-	b = 0;
-	setTitle();
-}
-</script>
+	}
+	</script>
 </head>
-
-<body><!-- onload="start();">-->
-<button id="start" type="button" onclick="start ();">Start</button>
-<button id="stop" type="button" onclick="stop ();">Stop</button>
-<button type="button" onclick="reset ();">Reset</button>
-<button type="button" onclick="b++; setTitle ();">+1</button>
-<button type="button" onclick="b--; setTitle ();">-1</button>
-
-<div id="moo"></div><input/><input type="button" onclick="this.previousSibling.previousSibling.textContent = this.previousSibling.value"/>
-
+<body>
+	<button id="start" type="button" onclick="start();">Start</button>
+	<button id="stop" type="button" onclick="stop();">Stop</button>
+	<button type="button" onclick="reset();">Reset</button>
+	<button type="button" onclick="b++; setTitle();">+1</button>
+	<button type="button" onclick="b--; setTitle();">-1</button>
 </body>
 </html>
