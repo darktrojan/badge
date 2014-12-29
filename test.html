@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>No title</title>
+	<script type="text/javascript">
+	var b = 0;
+	var interval;
+	function setTitle() {
+		document.title = '[' + b + '] Test Page';
+	}
+	function start() {
+		interval = setInterval(function() {
+			b += 1;
+			setTitle();
+		}, 10000);
+		document.getElementById('start').disabled = true;
+		document.getElementById('stop').disabled = false;
+	}
+	function stop() {
+		clearInterval(interval);
+		document.getElementById('start').disabled = false;
+		document.getElementById('stop').disabled = true;
+	}
+	function reset() {
+		b = 0;
+		setTitle();
+	}
+	</script>
+</head>
+<body>
+	<button id="start" type="button" onclick="start();">Start</button>
+	<button id="stop" type="button" onclick="stop();">Stop</button>
+	<button type="button" onclick="reset();">Reset</button>
+	<button type="button" onclick="b++; setTitle();">+1</button>
+	<button type="button" onclick="b--; setTitle();">-1</button>
+</body>
+</html>
