@@ -590,14 +590,8 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     }
 
     let oldValue = parseInt(tabBadge.getAttribute('value')) || 0;
-
-    tabBadge.style.width = '';
     tabBadge.setAttribute('value', badgeValue);
-    chromeWindow.setTimeout(function() {
-      if (tabBadge.clientWidth <= parseInt(tabBadge.style.minWidth)) {
-        tabBadge.style.width = tabBadge.clientWidth + 'px';
-      }
-    }, 0);
+
     if (tab.pinned) {
       tabBrowserTabs._positionPinnedTabs();
     }
