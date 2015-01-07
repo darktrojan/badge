@@ -619,22 +619,32 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
 function fixBinding(event) {
   let tab = event.target;
   let tabBadgeSmall = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
-  let closeButton = tab.ownerDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
+  let closeButton = getCloseButton(tab);
+  if (!closeButton) {
+    Cu.reportError(strings.GetStringFromName('error.conflict'));
+  }
 
   switch (event.type) {
   case 'TabPinned':
     if (tabBadgeSmall) {
       tabBadgeSmall.setAttribute('pinned', 'true');
     }
-    closeButton.setAttribute('pinned', 'true');
+    if (closeButton) {
+      closeButton.setAttribute('pinned', 'true');
+    }
     break;
   case 'TabUnpinned':
     if (tabBadgeSmall) {
       tabBadgeSmall.removeAttribute('pinned');
     }
-    closeButton.removeAttribute('pinned');
+    if (closeButton) {
+      closeButton.removeAttribute('pinned');
+    }
     break;
   case 'TabAttrModified':
+    if (!closeButton) {
+      return;
+    }
     if (tab.selected)
       closeButton.setAttribute('selected', 'true');
     else
@@ -643,8 +653,7 @@ function fixBinding(event) {
   }
 }
 
-function getCloseButton(tab)
-{
+function getCloseButton(tab) {
   let chromeDocument = tab.ownerDocument;
   let closeButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
   if (!closeButton) {
