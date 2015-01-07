@@ -561,15 +561,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadge.style.backgroundColor = backcolor;
       tabBadge.style.animation = 'none';
 
-      let closeButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
-      if (!closeButton) {
-        // look for the Tab Mix Plus close button
-        let tmpCloseButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'tmp-close-button');
-        if (tmpCloseButton) {
-          // Tab Mix Plus has two close buttons, which is just annoying
-          closeButton = tmpCloseButton.parentNode.lastChild;
-        }
-      }
+      let closeButton = getCloseButton(tab);
       if (!closeButton) {
         Cu.reportError(strings.GetStringFromName('error.conflict'));
         return;
@@ -649,6 +641,21 @@ function fixBinding(event) {
       closeButton.removeAttribute('selected');
     break;
   }
+}
+
+function getCloseButton(tab)
+{
+  let chromeDocument = tab.ownerDocument;
+  let closeButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'close-button');
+  if (!closeButton) {
+    // look for the Tab Mix Plus close button
+    let tmpCloseButton = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', 'tmp-close-button');
+    if (tmpCloseButton) {
+      // Tab Mix Plus has two close buttons, which is just annoying
+      closeButton = tmpCloseButton.parentNode.lastChild;
+    }
+  }
+  return closeButton;
 }
 
 function updateOnRearrange(event) {
