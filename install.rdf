@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>badge@darktrojan.net</em:id>
-		<em:version>1.18</em:version>
+		<em:version>1.19</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Tab Badge</em:name>
