@@ -1,6 +1,6 @@
 <!ENTITY tabbadge.style "徽章樣式">
 <!ENTITY tabbadge.style.insidetab "在分頁標籤加上徽章">
-<!ENTITY tabbadge.style.onicon "顯示文字於網站圖示上">
+<!ENTITY tabbadge.style.onicon "在分頁圖示上顯示文字">
 <!ENTITY tabbadge.animating "徽章動畫">
 <!ENTITY tabbadge.mode "黑名單模式">
 <!ENTITY tabbadge.mode.blacklist "不對黑名單網域顯示">
