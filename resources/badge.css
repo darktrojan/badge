@@ -1,5 +1,6 @@
 .tab-badge {
   text-align: center;
+  -moz-margin-end: 0px !important;
   padding: 0 4px;
   animation-name: jump;
   animation-duration: 250ms;
@@ -7,18 +8,13 @@
   animation-iteration-count: 6;
   animation-direction: alternate;
 }
-
-tab:not([pinned]) .tab-badge {
+tab[pinned="true"] .tab-badge {
+  -moz-margin-start: -3px !important;
   -moz-margin-end: 3px !important;
 }
-
-.tabbrowser-tabs[closebuttons="activetab"] tab:not([pinned])[selected="true"] .tab-badge,
-.tabbrowser-tabs[closebuttons="alltabs"] tab:not([pinned]) .tab-badge {
-  -moz-margin-end: 0 !important;
-}
-
-tab[pinned="true"] .tab-badge {
+tab[pinned="true"] .tab-badge[fx37] {
   -moz-margin-start: 3px !important;
+  -moz-margin-end: -3px !important;
 }
 
 @keyframes jump {

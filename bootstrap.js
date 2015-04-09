@@ -553,6 +553,9 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     } else {
       tabBadge = chromeDocument.createElementNS(XULNS, 'label');
       tabBadge.setAttribute('anonid', BADGE_ANONID);
+      if (Services.vc.compare(Services.appinfo.version, 38) == -1) {
+        tabBadge.setAttribute('fx37', 'true');
+      }
       tabBadge.className = 'tab-badge tab-text';
       if (Services.appinfo.OS == 'WINNT') {
         tabBadge.classList.add('winstripe');
