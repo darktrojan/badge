@@ -1,6 +1,7 @@
 .tab-badge {
   text-align: center;
-  -moz-margin-end: 0px !important;
+  -moz-margin-start: 4px !important;
+  -moz-margin-end: -4px !important;
   padding: 0 4px;
   animation-name: jump;
   animation-duration: 250ms;
