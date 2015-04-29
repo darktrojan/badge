@@ -31,7 +31,6 @@ let smallBadge;
 let whitelistMode;
 let blacklist;
 let whitelist;
-let resProt;
 let piData;
 let animating;
 
@@ -87,21 +86,7 @@ function startup(params, aReason) {
   readCustomPref();
   prefs.addObserver('', obs, false);
 
-  let resourceURI;
-  if ('resourceURI' in params) {
-    resourceURI = Services.io.newURI(params.resourceURI.spec + 'resources/', null, null);
-  } else if (params.installPath.isDirectory()) {
-    let resourceDir = params.installPath.clone();
-    resourceDir.append('resources');
-    resourceURI = Services.io.newFileURI(resourceDir);
-  } else {
-    let jarURI = 'jar:' + Services.io.newFileURI(params.installPath).spec + '!/resources/';
-    resourceURI = Services.io.newURI(jarURI, null, null);
-  }
-  resProt = Services.io.getProtocolHandler('resource').QueryInterface(Ci.nsIResProtocolHandler);
-  resProt.setSubstitution('tabbadge_' + params.version, resourceURI);
-
-  piData = 'href="resource://tabbadge_' + params.version + '/badge.css" type="text/css"';
+  piData = 'href="resource://tabbadge/badge.css" type="text/css"';
 
   let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
@@ -129,8 +114,6 @@ function shutdown(params, aReason) {
   Services.ww.unregisterNotification(obs);
 
   prefs.removeObserver('', obs);
-
-  resProt.setSubstitution('tabbadge_' + params.version, null);
 
   try {
     idleService.removeIdleObserver(obs, IDLE_TIMEOUT);
