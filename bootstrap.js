@@ -22,6 +22,7 @@ const MODE_WHITELIST = 2;
 const TITLE_REGEXP = /[\(\[]([0-9]{1,3})(\+?)( unread)?[\)\]]/;
 
 const BROWSER_WINDOW = 'navigator:browser';
+const PI_DATA = 'href="resource://tabbadge/badge.css" type="text/css"';
 const IDLE_TIMEOUT = 15;
 
 let prefs;
@@ -31,7 +32,6 @@ let smallBadge;
 let whitelistMode;
 let blacklist;
 let whitelist;
-let piData;
 let animating;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
@@ -86,8 +86,6 @@ function startup(params, aReason) {
   readCustomPref();
   prefs.addObserver('', obs, false);
 
-  piData = 'href="resource://tabbadge/badge.css" type="text/css"';
-
   let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
   while (windowEnum.hasMoreElements()) {
     paint(windowEnum.getNext());
@@ -124,7 +122,7 @@ function shutdown(params, aReason) {
 function paint(win) {
   if (win.location == 'chrome://browser/content/browser.xul') {
     let document = win.document;
-    let pi = document.createProcessingInstruction('xml-stylesheet', piData);
+    let pi = document.createProcessingInstruction('xml-stylesheet', PI_DATA);
     document.insertBefore(pi, document.getElementById('main-window'));
 
     let tabContextMenu = document.getElementById('tabContextMenu');
@@ -215,7 +213,7 @@ function unpaint(win) {
 
     for (let i = 0; i < document.childNodes.length; i++) {
       let node = document.childNodes[i];
-      if (node.nodeType == document.PROCESSING_INSTRUCTION_NODE && node.data == piData) {
+      if (node.nodeType == document.PROCESSING_INSTRUCTION_NODE && node.data == PI_DATA) {
         document.removeChild(node);
         break;
       }
