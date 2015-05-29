@@ -42,15 +42,15 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 });
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
-function install(params, aReason) {
+function install(params, reason) {
 }
-function uninstall(params, aReason) {
-  if (aReason == ADDON_UNINSTALL) {
+function uninstall(params, reason) {
+  if (reason == ADDON_UNINSTALL) {
     Services.prefs.deleteBranch('extensions.tabbadge.');
     Services.prefs.deleteBranch('services.sync.prefs.sync.extensions.tabbadge.');
   }
 }
-function startup(params, aReason) {
+function startup(params, reason) {
   let syncDefaultPrefs = Services.prefs.getDefaultBranch('services.sync.prefs.sync.extensions.tabbadge.');
   syncedPrefs.forEach(function(name) {
     syncDefaultPrefs.setBoolPref(name, false);
@@ -94,12 +94,17 @@ function startup(params, aReason) {
 
   Services.obs.addObserver(obs, 'addon-options-displayed', false);
 
-  if (aReason != ADDON_INSTALL && Services.vc.compare(prefs.getCharPref('donationreminder'), params.version) == -1) {
-    idleService.addIdleObserver(obs, IDLE_TIMEOUT);
+  if (reason != ADDON_INSTALL) {
+    // Truncate version numbers to floats
+    let oldVersion = parseFloat(prefs.getCharPref('donationreminder'), 10);
+    let newVersion = parseFloat(params.version, 10);
+    if (Services.vc.compare(oldVersion, newVersion) == -1) {
+      idleService.addIdleObserver(obs, IDLE_TIMEOUT);
+    }
   }
 }
-function shutdown(params, aReason) {
-  if (aReason == APP_SHUTDOWN) {
+function shutdown(params, reason) {
+  if (reason == APP_SHUTDOWN) {
     return;
   }
 
@@ -307,7 +312,8 @@ let obs = {
     case 'idle':
       idleService.removeIdleObserver(this, IDLE_TIMEOUT);
 
-      let version = prefs.getCharPref('version');
+      // Truncate version number to a float
+      let version = parseFloat(prefs.getCharPref('version'), 10);
       let recentWindow = Services.wm.getMostRecentWindow(BROWSER_WINDOW);
       let browser = recentWindow.gBrowser;
       let notificationBox = browser.getNotificationBox();
