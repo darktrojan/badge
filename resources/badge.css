@@ -13,10 +13,6 @@ tab[pinned="true"] .tab-badge {
   -moz-margin-start: -3px !important;
   -moz-margin-end: 3px !important;
 }
-tab[pinned="true"] .tab-badge[fx37] {
-  -moz-margin-start: 3px !important;
-  -moz-margin-end: -3px !important;
-}
 
 @keyframes jump {
   0% {

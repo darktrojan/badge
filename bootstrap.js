@@ -438,9 +438,11 @@ function titleChanged(event) {
     return;
 
   let tab = this._getTabForContentWindow(contentWin);
-  contentWin.setTimeout(function() {
-    updateBadge(tab);
-  }, 100);
+  if (tab) {
+    contentWin.setTimeout(function() {
+      updateBadge(tab);
+    }, 100);
+  }
 }
 
 function isBlacklisted(uri) {
@@ -639,6 +641,11 @@ function fixBinding(event) {
       closeButton.setAttribute('selected', 'true');
     else
       closeButton.removeAttribute('selected');
+
+    if (tab.hasAttribute('visuallyselected'))
+      closeButton.setAttribute('visuallyselected', 'true');
+    else
+      closeButton.removeAttribute('visuallyselected');
     break;
   }
 }
