@@ -1,3 +1,5 @@
+/* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, idleService, strings, Iterator */
+
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
@@ -33,6 +35,7 @@ let whitelistMode;
 let blacklist;
 let whitelist;
 let animating;
+let obs;
 
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
 let customRegExps = new Map();
@@ -42,7 +45,7 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 });
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
-function install(params, reason) {
+function install() {
   if (prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_STRING) {
     prefs.clearUserPref('donationreminder');
   }
@@ -152,9 +155,9 @@ function paint(win) {
     menuItem.addEventListener('command', function() {
       let tab = document.popupNode;
       let uri = tab.linkedBrowser.currentURI;
+      let list = whitelistMode ? whitelist : blacklist;
+      let listName = whitelistMode ? 'whitelist' : 'blacklist';
       try {
-        let list = whitelistMode ? whitelist : blacklist;
-        let listName = whitelistMode ? 'whitelist' : 'blacklist';
         let blacklistString = uri.schemeIs('file') ? uri.spec : uri.host;
         let index = list.indexOf(blacklistString);
         if (index > -1) {
@@ -234,7 +237,7 @@ function unpaint(win) {
     }
   }
 }
-let obs = {
+obs = {
   observe: function(aSubject, aTopic, aData) {
     switch (aTopic) {
     case 'domwindowopened':
@@ -288,20 +291,20 @@ let obs = {
       }
       break;
     case 'addon-options-displayed':
-      if (aData == ADDON_ID) {
-        function disableControl(aControl, aDisabled) {
-          if (aDisabled) {
-            aControl.setAttribute('disabled', 'true');
-          } else {
-            aControl.removeAttribute('disabled');
-          }
+      function disableControl(aControl, aDisabled) {
+        if (aDisabled) {
+          aControl.setAttribute('disabled', 'true');
+        } else {
+          aControl.removeAttribute('disabled');
         }
+      }
 
+      if (aData == ADDON_ID) {
         let controls = {};
-        for (aName of ['style', 'mode']) {
+        for (let aName of ['style', 'mode']) {
           controls[aName] = aSubject.getElementById('tabbadge-' + aName).firstElementChild;
         }
-        for (aName of ['animating', 'blacklist', 'whitelist']) {
+        for (let aName of ['animating', 'blacklist', 'whitelist']) {
           controls[aName] = aSubject.getElementById('tabbadge-' + aName);
         }
 
@@ -377,7 +380,6 @@ function readCustomPref() {
 
 function popupShowing(event) {
   let document = event.target.ownerDocument;
-  let window = document.defaultView;
   let menuSeparator = document.getElementById('tabBadgeSeparator');
   let menuItem = document.getElementById('tabBadgeBlacklist');
 
@@ -404,7 +406,7 @@ function popupShowing(event) {
       if (uri.schemeIs('file')) {
         label = strings.GetStringFromName('domain.' + label + '.file');
       } else if (uri.host) {
-        label = strings.formatStringFromName('domain.' + label, [uri.host], 1)
+        label = strings.formatStringFromName('domain.' + label, [uri.host], 1);
       } else {
         label = undefined;
       }
@@ -683,7 +685,7 @@ function updateOnSessionRestore(event) {
 }
 
 function drawNumber(document, number) {
-  number = new String(number);
+  number = number.toString();
   let c = document.createElementNS(XHTMLNS, 'canvas');
   c.width = c.height = 16;
   let cx = c.getContext('2d');
