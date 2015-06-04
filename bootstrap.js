@@ -25,7 +25,7 @@ const BROWSER_WINDOW = 'navigator:browser';
 const PI_DATA = 'href="resource://tabbadge/badge.css" type="text/css"';
 const IDLE_TIMEOUT = 15;
 
-let prefs;
+let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 let forecolor;
 let backcolor;
 let smallBadge;
@@ -43,6 +43,9 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
 function install(params, reason) {
+  if (prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_STRING) {
+    prefs.clearUserPref('donationreminder');
+  }
 }
 function uninstall(params, reason) {
   if (reason == ADDON_UNINSTALL) {
@@ -62,14 +65,12 @@ function startup(params, reason) {
   defaultPrefs.setIntPref('style', STYLE_LARGE);
   defaultPrefs.setIntPref('mode', MODE_BLACKLIST);
   defaultPrefs.setBoolPref('animating', true);
-  defaultPrefs.setCharPref('donationreminder', '0');
+  defaultPrefs.setIntPref('donationreminder', 0);
 
   syncedPrefs.forEach(function(name) {
     syncDefaultPrefs.setBoolPref(name, true);
   });
 
-  prefs = Services.prefs.getBranch('extensions.tabbadge.');
-  prefs.setCharPref('version', params.version);
   try {
     forecolor = prefs.getCharPref('forecolor');
     backcolor = prefs.getCharPref('backcolor');
@@ -96,12 +97,20 @@ function startup(params, reason) {
 
   if (reason != ADDON_INSTALL) {
     // Truncate version numbers to floats
-    let oldVersion = parseFloat(prefs.getCharPref('donationreminder'), 10);
-    let newVersion = parseFloat(params.version, 10);
-    if (Services.vc.compare(oldVersion, newVersion) == -1) {
+    let oldVersion = parseFloat(prefs.getCharPref('version'), 10);
+    let currentVersion = parseFloat(params.version, 10);
+    let shouldRemind = true;
+
+    if (prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_INT) {
+      let lastReminder = prefs.getIntPref('donationreminder') * 1000;
+      shouldRemind = Date.now() - lastReminder > 604800000;
+    }
+
+    if (shouldRemind && Services.vc.compare(oldVersion, currentVersion) == -1) {
       idleService.addIdleObserver(obs, IDLE_TIMEOUT);
     }
   }
+  prefs.setCharPref('version', params.version);
 }
 function shutdown(params, reason) {
   if (reason == APP_SHUTDOWN) {
@@ -329,7 +338,7 @@ let obs = {
         }
       }]);
 
-      prefs.setCharPref('donationreminder', version);
+      prefs.setIntPref('donationreminder', Date.now() / 1000);
       break;
     }
   }
