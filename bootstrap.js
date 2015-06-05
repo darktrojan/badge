@@ -333,7 +333,7 @@ obs = {
       let label = strings.GetStringFromName('donate.button.label');
       let accessKey = strings.GetStringFromName('donate.button.accesskey');
 
-      notificationBox.appendNotification(message, 'badge-donate', null, notificationBox.PRIORITY_INFO_MEDIUM, [{
+      notificationBox.appendNotification(message, 'badge-donate', 'resource://tabbadge/icon16.png', notificationBox.PRIORITY_INFO_MEDIUM, [{
         label: label,
         accessKey: accessKey,
         callback: function() {
