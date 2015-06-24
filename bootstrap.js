@@ -28,6 +28,7 @@ const PI_DATA = 'href="resource://tabbadge/badge.css" type="text/css"';
 const IDLE_TIMEOUT = 15;
 
 let aboutPage = {};
+let autocomplete = {};
 let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 let forecolor;
 let backcolor;
@@ -129,7 +130,16 @@ function startup(params, reason) {
     aboutPage.TabBadgeAboutHandler.prototype.contractID,
     aboutPage.NSGetFactory(aboutPage.TabBadgeAboutHandler.prototype.classID)
   );
+
+  Services.scriptloader.loadSubScript(params.resourceURI.spec + 'components/autocomplete.js', autocomplete);
+  componentRegistrar.registerFactory(
+    autocomplete.HostsAutoCompleteSearch.prototype.classID,
+    '',
+    autocomplete.HostsAutoCompleteSearch.prototype.contractID,
+    autocomplete.NSGetFactory(autocomplete.HostsAutoCompleteSearch.prototype.classID)
+  );
 }
+
 function shutdown(params, reason) {
   if (reason == APP_SHUTDOWN) {
     return;
@@ -153,6 +163,11 @@ function shutdown(params, reason) {
   componentRegistrar.unregisterFactory(
     aboutPage.TabBadgeAboutHandler.prototype.classID,
     aboutPage.NSGetFactory(aboutPage.TabBadgeAboutHandler.prototype.classID)
+  );
+
+  componentRegistrar.unregisterFactory(
+    autocomplete.HostsAutoCompleteSearch.prototype.classID,
+    autocomplete.NSGetFactory(autocomplete.HostsAutoCompleteSearch.prototype.classID)
   );
 }
 
