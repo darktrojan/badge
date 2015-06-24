@@ -1,4 +1,6 @@
-<!DOCTYPE settings SYSTEM "chrome://tabbadge/locale/options.dtd">
+<?xml version="1.0"?>
+
+<!DOCTYPE settings SYSTEM "chrome://tabbadge/locale/strings.dtd">
 <settings xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<setting id="tabbadge-style"
 		type="menulist" pref="extensions.tabbadge.style" title="&tabbadge.style;">
