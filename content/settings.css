@@ -1,0 +1,32 @@
+:root {
+	margin: 1em;
+}
+setting {
+	-moz-box-align: start;
+}
+setting[type="bool"] {
+	display: -moz-grid-line;
+	-moz-binding: url("chrome://mozapps/content/extensions/setting.xml#setting-bool");
+}
+setting[type="color"] {
+	display: -moz-grid-line;
+	-moz-binding: url("chrome://tabbadge/content/settings.xml#setting-color");
+}
+setting[type="menulist"] {
+	display: -moz-grid-line;
+	-moz-binding: url("chrome://mozapps/content/extensions/setting.xml#setting-multi");
+}
+.preferences-alignment {
+	line-height: 30px;
+	min-height: 30px;
+	-moz-box-align: center;
+}
+.preferences-description,
+.preferences-learnmore {
+	display: none;
+}
+input[type="color"] {
+	padding: 0px;
+	margin: 2px 4px;
+	height: 28px;
+}

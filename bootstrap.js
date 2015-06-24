@@ -1,4 +1,4 @@
-/* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, idleService, strings, Iterator */
+/* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, strings, componentRegistrar, idleService, Iterator */
 
 const Ci = Components.interfaces;
 const Cu = Components.utils;
@@ -27,6 +27,7 @@ const BROWSER_WINDOW = 'navigator:browser';
 const PI_DATA = 'href="resource://tabbadge/badge.css" type="text/css"';
 const IDLE_TIMEOUT = 15;
 
+let aboutPage = {};
 let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 let forecolor;
 let backcolor;
@@ -43,6 +44,9 @@ let customRegExps = new Map();
 
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
   return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
+});
+XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
+  return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 });
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
@@ -117,6 +121,14 @@ function startup(params, reason) {
     }
   }
   prefs.setCharPref('version', params.version);
+
+  Services.scriptloader.loadSubScript(params.resourceURI.spec + 'components/about-tabbadge.js', aboutPage);
+  componentRegistrar.registerFactory(
+    aboutPage.TabBadgeAboutHandler.prototype.classID,
+    '',
+    aboutPage.TabBadgeAboutHandler.prototype.contractID,
+    aboutPage.NSGetFactory(aboutPage.TabBadgeAboutHandler.prototype.classID)
+  );
 }
 function shutdown(params, reason) {
   if (reason == APP_SHUTDOWN) {
@@ -137,6 +149,11 @@ function shutdown(params, reason) {
     idleService.removeIdleObserver(obs, IDLE_TIMEOUT);
   } catch (e) { // might be already removed
   }
+
+  componentRegistrar.unregisterFactory(
+    aboutPage.TabBadgeAboutHandler.prototype.classID,
+    aboutPage.NSGetFactory(aboutPage.TabBadgeAboutHandler.prototype.classID)
+  );
 }
 
 function paint(win) {
