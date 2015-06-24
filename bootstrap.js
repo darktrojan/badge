@@ -1,5 +1,5 @@
 /* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, strings, componentRegistrar, idleService, Iterator */
-
+/* exported install, uninstall, startup, shutdown */
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
@@ -33,8 +33,7 @@ let forecolor;
 let backcolor;
 let smallBadge;
 let whitelistMode;
-let blacklist;
-let whitelist;
+let blacklist, whitelist, shakelist;
 let animating;
 let removeDelay;
 let obs;
@@ -90,6 +89,7 @@ function startup(params, reason) {
 
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
+    shakelist = getArrayPref('shakelist');
   } catch (e) {
     Cu.reportError(strings.GetStringFromName('error.startup'));
     return;
@@ -293,6 +293,9 @@ obs = {
         if (whitelistMode)
           enumerateTabs(updateBadge);
         break;
+      case 'shakelist':
+        shakelist = getArrayPref('shakelist');
+        break;
       case 'style':
         smallBadge = prefs.getIntPref('style') == STYLE_SMALL;
         enumerateTabs(updateBadge);
@@ -485,9 +488,7 @@ function isBlacklisted(uri) {
 
   try {
     if (uri.schemeIs('file')) {
-      inList = list.some(function(listItem) {
-        return uri.spec.indexOf(listItem) == 0;
-      });
+      inList = list.some(listItem => uri.spec.indexOf(listItem) == 0);
     } else {
       let host = uri.host;
       if (!host)
@@ -548,6 +549,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
   let tabIcon = chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
   let tabBadgeLayer = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_LAYER_ANONID);
   let tabBadgeSmall = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_SMALL_ANONID);
+  let oldValue = parseInt(tab.getAttribute('badgevalue'), 10) || 0;
 
   if (smallBadge) {
     removeBadge(tab, false, true);
@@ -616,14 +618,33 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       }, false);
     }
 
-    let oldValue = parseInt(tabBadge.getAttribute('value')) || 0;
     tabBadge.setAttribute('value', badgeValue);
 
     if (tab.pinned) {
       tabBrowserTabs._positionPinnedTabs();
     }
-    if (animating && parseInt(badgeValue) > oldValue) {
+  }
+
+  tab.setAttribute('badgevalue', badgeValue);
+
+  if (parseInt(badgeValue, 10) > oldValue) {
+    if (!smallBadge && animating) {
       tabBadge.style.animation = null;
+    }
+
+    let uri = tab.linkedBrowser.currentURI;
+    let shake = false;
+    if (uri.schemeIs('file')) {
+      shake = shakelist.some(listItem => uri.spec.indexOf(listItem) === 0);
+    } else {
+      try {
+        shake = shakelist.indexOf(uri.host) >= 0;
+      } catch (ex) { // scheme might not have a host
+      }
+    }
+
+    if (shake) {
+      chromeWindow.getAttention();
     }
   }
 }
@@ -647,6 +668,10 @@ function removeBadge(tab, keepBadge, keepSmallBadge) {
     }
     let tabIcon = document.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
     tabIcon.style.display = null;
+
+    if (!keepBadge) {
+      tab.removeAttribute('badgevalue');
+    }
   }
 }
 
