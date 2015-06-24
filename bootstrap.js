@@ -1,7 +1,6 @@
 /* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, strings, componentRegistrar, idleService, Iterator */
 /* exported install, uninstall, startup, shutdown */
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -34,7 +33,7 @@ let forecolor;
 let backcolor;
 let smallBadge;
 let whitelistMode;
-let blacklist, whitelist, shakelist;
+let blacklist, whitelist, alertlist, shakelist;
 let animating;
 let removeDelay;
 let obs;
@@ -48,6 +47,7 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
   return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 });
+XPCOMUtils.defineLazyServiceGetter(this, 'alertsService', '@mozilla.org/alerts-service;1', 'nsIAlertsService');
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
 function install() {
@@ -90,6 +90,7 @@ function startup(params, reason) {
 
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
+    alertlist = getArrayPref('alertlist');
     shakelist = getArrayPref('shakelist');
   } catch (e) {
     Cu.reportError(strings.GetStringFromName('error.startup'));
@@ -308,6 +309,9 @@ obs = {
         if (whitelistMode)
           enumerateTabs(updateBadge);
         break;
+      case 'alertlist':
+        alertlist = getArrayPref('alertlist');
+        break;
       case 'shakelist':
         shakelist = getArrayPref('shakelist');
         break;
@@ -497,25 +501,20 @@ function titleChanged(event) {
   }
 }
 
-function isBlacklisted(uri) {
-  let list = whitelistMode ? whitelist : blacklist;
-  let inList;
-
+function isInList(uri, list) {
   try {
     if (uri.schemeIs('file')) {
-      inList = list.some(listItem => uri.spec.indexOf(listItem) == 0);
+      return list.some(listItem => uri.spec.indexOf(listItem) == 0);
     } else {
-      let host = uri.host;
-      if (!host)
-        return false;
-      inList = list.indexOf(host) >= 0;
+      return list.indexOf(uri.host) >= 0;
     }
-
-    if ((whitelistMode && !inList) || (!whitelistMode && inList))
-      return true;
-  } catch (e) {
+  } catch (ex) { // uri scheme might not have a host
+    return false;
   }
-  return false;
+}
+
+function isBlacklisted(uri) {
+  return whitelistMode != isInList(uri, whitelistMode ? whitelist : blacklist);
 }
 
 function updateBadge(tab) {
@@ -647,19 +646,12 @@ function updateBadgeWithValue(tab, badgeValue, match) {
       tabBadge.style.animation = null;
     }
 
-    let uri = tab.linkedBrowser.currentURI;
-    let shake = false;
-    if (uri.schemeIs('file')) {
-      shake = shakelist.some(listItem => uri.spec.indexOf(listItem) === 0);
-    } else {
-      try {
-        shake = shakelist.indexOf(uri.host) >= 0;
-      } catch (ex) { // scheme might not have a host
-      }
-    }
-
-    if (shake) {
+    let uri = tab.linkedBrowser.currentURI
+    if (isInList(uri, shakelist)) {
       chromeWindow.getAttention();
+    }
+    if (isInList(uri, alertlist)) {
+      alertsService.showAlertNotification('chrome://tabbadge/content/icon64.png', tab.label, '');
     }
   }
 }

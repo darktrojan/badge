@@ -1,6 +1,6 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-const lists = ["black", "white", "shake"];
+const lists = ["black", "white", "alert", "shake"];
 
 for (let e of document.querySelectorAll("[id]")) {
 	this[e.id] = e;
