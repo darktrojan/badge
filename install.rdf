@@ -32,6 +32,14 @@
 				<em:description>在您的分頁上加入計數徽章－－超棒的 Facebook 或 Twitter的通知工具！</em:description>
 			</Description>
 		</em:localized>
+
+		<em:localized>
+			<Description>
+				<em:locale>nl</em:locale>
+				<em:name>Tabblad-badge</em:name>
+				<em:description>Voegt een tellerbadge toe aan uw tabbladen - geweldig voor Facebook- of Twitter-meldingen.</em:description>
+			</Description>
+		</em:localized>
 	</Description>
 
 </RDF>

@@ -1,0 +1,13 @@
+<!ENTITY tabbadge.style "Badge-stijl">
+<!ENTITY tabbadge.style.insidetab "Badge op het tabblad">
+<!ENTITY tabbadge.style.onicon "Tekst op het tabbladpictogram">
+<!ENTITY tabbadge.animating "Badge animeren">
+<!ENTITY tabbadge.mode "Zwarte lijst-modus">
+<!ENTITY tabbadge.mode.blacklist "Niet weergeven voor domeinnamen op de zwarte lijst">
+<!ENTITY tabbadge.mode.whitelist "Alleen weergeven voor domeinnamen op de witte lijst">
+<!ENTITY tabbadge.blacklist "Domeinnamen op de zwarte lijst">
+<!ENTITY tabbadge.blacklist.desc "Domeinnamen scheiden d.m.v. een spatie">
+<!ENTITY tabbadge.whitelist "Domeinnamen op de witte lijst">
+<!ENTITY tabbadge.whitelist.desc "Domeinnamen scheiden d.m.v. een spatie">
+<!ENTITY tabbadge.backcolor "Achtergrondkleur">
+<!ENTITY tabbadge.forecolor "Voorgrondkleur">
