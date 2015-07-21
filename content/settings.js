@@ -17,16 +17,16 @@ if (prefs.getIntPref('style') == 1) {
 	select(icon_check);
 }
 
-let backgroundRule, foregroundRule;
+let backcolorRule, forecolorRule;
 for (let r of document.styleSheets[0].cssRules) {
 	if (r.selectorText == '.background') {
-		backgroundRule = r;
+		backcolorRule = r;
 	} else if (r.selectorText == '.foreground') {
-		foregroundRule = r;
+		forecolorRule = r;
 	}
 }
-document.getElementById('backcolor').value = backgroundRule.style.fill = prefs.getCharPref('backcolor');
-document.getElementById('forecolor').value = foregroundRule.style.fill = prefs.getCharPref('forecolor');
+document.getElementById('backcolor').value = backcolorRule.style.fill = prefs.getCharPref('backcolor');
+document.getElementById('forecolor').value = forecolorRule.style.fill = prefs.getCharPref('forecolor');
 
 let template = document.getElementById('listitem');
 for (let l of ['blacklist', 'whitelist', 'shakelist']) {
@@ -72,49 +72,70 @@ selectmode(document.querySelector('[data-mode="' + prefs.getIntPref('mode') + '"
 // 	}
 // }, 4000);
 
-requestAnimationFrame(function() {
+setTimeout(function() {
 	document.documentElement.dataset.complete = true;
-});
+}, 50);
 
-function u(id) {
-	return 'chrome://tabbadge/content/icons.svg' + id;
+function getU(element) {
+	if (element.localName != 'use') {
+		element = element.querySelector('use');
+	}
+	return element.getAttributeNS(XLINKNS, 'href').replace('chrome://tabbadge/content/icons.svg', '');
 }
 
 function setU(element, id) {
-	element.querySelector('use').setAttributeNS(XLINKNS, 'href', u(id));
+	if (element.localName != 'use') {
+		element = element.querySelector('use');
+	}
+	element.setAttributeNS(XLINKNS, 'href', 'chrome://tabbadge/content/icons.svg' + id);
 }
 
 function select(which) {
 	for (let w of [animated_check, unanimated_check, icon_check]) {
-		w.setAttributeNS(XLINKNS, 'href', w == which ? u('#full') : u('#empty'));
+		setU(w, w == which ? '#full' : '#empty');
 	}
+
+	if (which == icon_check) {
+		prefs.setIntPref('style', 2);
+	} else {
+		prefs.setIntPref('style', 1);
+		prefs.setBoolPref('animating', which == animated_check);
+	}
+}
+
+function setcolour(which) {
+	let rule = window[which.id + 'Rule'];
+	rule.style.fill = which.value;
+
+	prefs.setCharPref(which.id, which.value);
 }
 
 function selectmode(which) {
 	let parent = which.parentNode;
 	let other;
-	if (which == parent.firstElementChild) {
-		other = parent.children[2];
+	if (which.dataset.mode == 1) {
+		other = document.querySelector('[data-mode="2"]');
 	} else {
-		other = parent.children[0];
+		other = document.querySelector('[data-mode="1"]');
 	}
 
-	which.querySelector('use').setAttributeNS(XLINKNS, 'href', u('#full'));
+	setU(which, '#full');
 	which.nextElementSibling.style.height = which.nextElementSibling.scrollHeight + 'px';
-	other.querySelector('use').setAttributeNS(XLINKNS, 'href', u('#empty'));
+	setU(other, '#empty');
 	other.nextElementSibling.style.height = null;
+
+	prefs.setIntPref('mode', parseInt(which.dataset.mode, 10));
 }
 
 function showhide(which) {
 	let list = which.parentNode.parentNode;
 	let listName = list.dataset.list;
-	let use = which.querySelector('use');
 
-	if (use.getAttributeNS(XLINKNS, 'href') == u('#empty')) {
-		use.setAttributeNS(XLINKNS, 'href', u('#' + listName + 'ed'));
+	if (getU(which) == '#empty') {
+		setU(which, '#' + listName + 'ed');
 		which.parentNode.style.color = null;
 	} else {
-		use.setAttributeNS(XLINKNS, 'href', u('#empty'));
+		setU(which, '#empty');
 		which.parentNode.style.color = '#484537';
 	}
 
@@ -123,9 +144,25 @@ function showhide(which) {
 		if (i == list.lastElementChild) {
 			break;
 		}
-		if (i.querySelector('use').getAttributeNS(XLINKNS, 'href') != u('#empty')) {
+		if (getU(i) != '#empty') {
 			domains.push(i.textContent.trim());
 		}
 	}
-	console.log(listName, domains.join(' '));
+
+	prefs.setCharPref(listName, domains.join(' '));
+}
+
+function add(which) {
+	let list = which.parentNode.parentNode;
+	let listName = list.dataset.list;
+
+	let newDomain = prompt('foo');
+	if (newDomain) {
+		let listitem = template.content.cloneNode(true).firstElementChild;
+		listitem.querySelector('span').textContent = newDomain;
+		list.insertBefore(listitem, list.lastElementChild);
+		list.style.height = list.scrollHeight + 'px';
+
+		showhide(listitem.querySelector('svg'));
+	}
 }

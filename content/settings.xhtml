@@ -156,8 +156,8 @@
 			</g>
 		</svg>
 		<div style="margin: 20px 0 20px 60px;">
-			Background: <input id="backcolor" type="color" value="#cc0000" onchange="backgroundRule.style.fill = this.value;" />
-			Foreground: <input id="forecolor" type="color" value="#ffffff" onchange="foregroundRule.style.fill = this.value;" />
+			Background: <input id="backcolor" type="color" value="#cc0000" onchange="setcolour(this);" />
+			Foreground: <input id="forecolor" type="color" value="#ffffff" onchange="setcolour(this);" />
 		</div>
 		<div style="margin: 20px 0">
 			<div data-mode="1" onclick="selectmode(this);" style="cursor: pointer;">
@@ -167,7 +167,7 @@
 			</div>
 			<ul data-list="blacklist">
 				<li>
-					<svg:svg width="40" height="22" viewBox="-11 -11 22 22">
+					<svg:svg width="40" height="22" viewBox="-11 -11 22 22" onclick="add(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
@@ -179,7 +179,7 @@
 			</div>
 			<ul data-list="whitelist">
 				<li>
-					<svg:svg width="40" height="22" viewBox="-11 -11 22 22">
+					<svg:svg width="40" height="22" viewBox="-11 -11 22 22" onclick="add(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
@@ -198,7 +198,7 @@
 			</svg:svg>Highlight Firefox icon
 			<ul style="height: 90px" data-list="shakelist">
 				<li>
-					<svg:svg width="40" height="22" viewBox="-11 -11 22 22">
+					<svg:svg width="40" height="22" viewBox="-11 -11 22 22" onclick="add(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
