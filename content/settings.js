@@ -4,6 +4,12 @@ const XLINKNS = document.lookupNamespaceURI('xlink');
 
 let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 
+let appearance = document.getElementById('appearance');
+appearance.setAttribute('width', appearance.parentNode.offsetWidth);
+let viewBox = appearance.getAttribute('viewBox').split(' ');
+viewBox[2] = appearance.parentNode.offsetWidth * 2 / 3;
+appearance.setAttribute('viewBox', viewBox.join(' '));
+
 let animated_check = document.getElementById('animated_check');
 let unanimated_check = document.getElementById('unanimated_check');
 let icon_check = document.getElementById('icon_check');
@@ -47,30 +53,57 @@ for (let l of ['blacklist', 'whitelist', 'shakelist']) {
 
 selectmode(document.querySelector('[data-mode="' + prefs.getIntPref('mode') + '"]'));
 
-// let animated = document.getElementById('animated');
-// let unanimated = document.getElementById('unanimated');
-// let icon = document.getElementById('icon');
-// let badgevalue = 3;
+let animated = document.getElementById('animated');
+let unanimated = document.getElementById('unanimated');
+let icon = document.getElementById('icon');
+let over = false;
+let animationtimer = document.getElementById('animationtimer');
+let badgevalue = 3;
 
-// animated.addEventListener('animationend', function() {
-// 	this.classList.remove('playing');
-// });
-// let interval = setInterval(function() {
-// 	animated.classList.add('playing');
+animationtimer.addEventListener('animationend', function() {
+	animated.classList.add('playing');
 
-// 	badgevalue = (badgevalue + 1) % 4;
-// 	for (let c of [animated, unanimated, icon]) {
-// 		c.querySelector('g > text').textContent = (badgevalue ? '[' + badgevalue + '] ' : '') + 'Tab Title';
-// 		if (c == icon) {
-// 			for (let i of c.querySelectorAll('g > g')) {
-// 				i.style.display = (i.id == 'icon' + badgevalue) ? null : 'none';
-// 			}
-// 		} else {
-// 			c.querySelector('g > g').style.display = badgevalue ? null : 'none';
-// 			c.querySelector('g > g > text').textContent = badgevalue;
-// 		}
-// 	}
-// }, 4000);
+	badgevalue = (badgevalue + 1) % 4;
+	for (let c of [animated, unanimated, icon]) {
+		c.querySelector('g > text').textContent = (badgevalue ? '[' + badgevalue + '] ' : '') + 'Tab Title';
+		if (c == icon) {
+			for (let i of c.querySelectorAll('g > g')) {
+				i.style.display = (i.id == 'icon' + badgevalue) ? null : 'none';
+			}
+		} else {
+			c.querySelector('g > g').style.display = badgevalue ? null : 'none';
+			c.querySelector('g > g > text').textContent = badgevalue;
+		}
+	}
+
+	if (over) {
+		if (animationtimer.style.animationName == 'timer2') {
+			animationtimer.style.animationName = 'timer1';
+		} else {
+			animationtimer.style.animationName = 'timer2';
+		}
+	}
+});
+appearance.addEventListener('mouseenter', function() {
+	console.log('mouseenter');
+	if (over) {
+		return;
+	}
+
+	over = true;
+	if (animationtimer.style.animationName == 'timer1') {
+		animationtimer.style.animationName = 'timer2';
+	} else {
+		animationtimer.style.animationName = 'timer1';
+	}
+});
+appearance.addEventListener('mouseleave', function() {
+	console.log('mouseleave');
+	over = false;
+});
+animated.addEventListener('animationend', function() {
+	this.classList.remove('playing');
+});
 
 setTimeout(function() {
 	document.documentElement.dataset.complete = true;

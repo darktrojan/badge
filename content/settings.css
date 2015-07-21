@@ -34,6 +34,32 @@ svg {
 	}
 }
 
+#animationtimer {
+	stroke-dasharray: 200.66px;
+	stroke-dashoffset: 200.66px;
+	animation-duration: 3s;
+	animation-timing-function: linear;
+	animation-iteration-count: 1;
+	animation-fill-mode: both;
+}
+
+@keyframes timer1 {
+	0% {
+		stroke-dashoffset: 200.66px;
+	}
+	100% {
+		stroke-dashoffset: 0px;
+	}
+}
+@keyframes timer2 {
+	0% {
+		stroke-dashoffset: 0px;
+	}
+	100% {
+		stroke-dashoffset: -200.66px;
+	}
+}
+
 use {
 	cursor: pointer;
 }
@@ -54,12 +80,14 @@ input[type="color"] {
 }
 
 ul {
-	margin: 0 0 0 60px;
+	margin: 0 0 0 45px;
 	list-style: none;
 	padding-left: 0;
 	font-size: 16px;
 	line-height: 30px;
 	overflow: hidden;
+}
+#mode ul {
 	height: 0px;
 }
 :root[data-complete] ul {
