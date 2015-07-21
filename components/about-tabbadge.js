@@ -9,7 +9,7 @@ TabBadgeAboutHandler.prototype = {
 		if (aURI.spec != "about:tabbadge")
 			return;
 
-		let channel = Services.io.newChannel("chrome://tabbadge/content/settings.xul", null, null);
+		let channel = Services.io.newChannel("chrome://tabbadge/content/settings.xhtml", null, null);
 		channel.originalURI = aURI;
 		return channel;
 	},
