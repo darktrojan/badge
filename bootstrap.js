@@ -35,9 +35,10 @@ let whitelistMode;
 let blacklist;
 let whitelist;
 let animating;
+let removeDelay;
 let obs;
 
-let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'style', 'whitelist'];
+let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'removedelay', 'style', 'whitelist'];
 let customRegExps = new Map();
 
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
@@ -68,6 +69,7 @@ function startup(params, reason) {
   defaultPrefs.setIntPref('style', STYLE_LARGE);
   defaultPrefs.setIntPref('mode', MODE_BLACKLIST);
   defaultPrefs.setBoolPref('animating', true);
+  defaultPrefs.setIntPref('removedelay', 0);
   defaultPrefs.setIntPref('donationreminder', 0);
 
   syncedPrefs.forEach(function(name) {
@@ -80,6 +82,7 @@ function startup(params, reason) {
     smallBadge = prefs.getIntPref('style') == STYLE_SMALL;
     whitelistMode = prefs.getIntPref('mode') == MODE_WHITELIST;
     animating = prefs.getBoolPref('animating');
+    removeDelay = prefs.getIntPref('removedelay');
 
     blacklist = getArrayPref('blacklist');
     whitelist = getArrayPref('whitelist');
@@ -283,6 +286,9 @@ obs = {
         break;
       case 'animating':
         animating = prefs.getBoolPref('animating');
+        break;
+      case 'removedelay':
+        removeDelay = prefs.getIntPref('removedelay');
         break;
       case 'custom':
         readCustomPref();
@@ -504,13 +510,22 @@ function updateBadge(tab) {
 }
 
 function updateBadgeWithValue(tab, badgeValue, match) {
-  if (!badgeValue) {
-    removeBadge(tab);
-    return;
-  }
-
   let chromeDocument = tab.ownerDocument;
   let chromeWindow = chromeDocument.defaultView;
+
+  if (!badgeValue) {
+    if (!tab._badgeTimeout) {
+      tab._badgeTimeout = chromeWindow.setTimeout(function() {
+        removeBadge(tab);
+        tab._badgeTimeout = null;
+      }, removeDelay);
+    }
+    return;
+  } else if (tab._badgeTimeout) {
+    chromeWindow.clearTimeout(tab._badgeTimeout);
+    tab._badgeTimeout = null;
+  }
+
   let tabBrowserTabs = chromeDocument.getElementById('tabbrowser-tabs');
   let tabBadge = chromeDocument.getAnonymousElementByAttribute(tab, 'anonid', BADGE_ANONID);
   let tabIcon = chromeDocument.getAnonymousElementByAttribute(tab, 'class', 'tab-icon-image');
