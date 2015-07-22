@@ -33,7 +33,7 @@ let forecolor;
 let backcolor;
 let smallBadge;
 let whitelistMode;
-let blacklist, whitelist, alertlist, shakelist;
+let blacklist, whitelist, alertlist, shakelist, soundlist;
 let animating;
 let removeDelay;
 let obs;
@@ -47,6 +47,12 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
   return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 });
+XPCOMUtils.defineLazyGetter(this, 'alertSound', function() {
+  let sound = new Services.appShell.hiddenDOMWindow.Audio();
+  sound.src = getSoundFileURI();
+  return sound;
+});
+XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
 XPCOMUtils.defineLazyServiceGetter(this, 'alertsService', '@mozilla.org/alerts-service;1', 'nsIAlertsService');
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
@@ -92,6 +98,7 @@ function startup(params, reason) {
     whitelist = getArrayPref('whitelist');
     alertlist = getArrayPref('alertlist');
     shakelist = getArrayPref('shakelist');
+    soundlist = getArrayPref('soundlist');
   } catch (e) {
     Cu.reportError(strings.GetStringFromName('error.startup'));
     return;
@@ -140,7 +147,6 @@ function startup(params, reason) {
     autocomplete.NSGetFactory(autocomplete.HostsAutoCompleteSearch.prototype.classID)
   );
 }
-
 function shutdown(params, reason) {
   if (reason == APP_SHUTDOWN) {
     return;
@@ -203,7 +209,7 @@ function paint(win) {
         }
         Services.prefs.setCharPref('extensions.tabbadge.' + listName, list.join(' '));
       } catch (e) {
-        Services.console.logStringMessage(strings.formatStringFromName('error.' + listName, [uri.spec], 1));
+        logError(strings.formatStringFromName('error.' + listName, [uri.spec], 1));
       }
     }, false);
     tabContextMenu.insertBefore(menuItem, sibling);
@@ -310,10 +316,12 @@ obs = {
           enumerateTabs(updateBadge);
         break;
       case 'alertlist':
-        alertlist = getArrayPref('alertlist');
-        break;
       case 'shakelist':
-        shakelist = getArrayPref('shakelist');
+      case 'soundlist':
+        Cu.getGlobalForObject(this)[aData] = getArrayPref(aData);
+        break;
+      case 'soundfile':
+        alertSound.src = getSoundFileURI();
         break;
       case 'style':
         smallBadge = prefs.getIntPref('style') == STYLE_SMALL;
@@ -421,6 +429,17 @@ function readCustomPref() {
   } catch (ex) {
     Cu.reportError(ex);
   }
+}
+
+function getSoundFileURI() {
+  try {
+    if (prefs.prefHasUserValue('soundfile')) {
+      return Services.io.newFileURI(prefs.getComplexValue('soundfile', Ci.nsIFile)).spec;
+    }
+  } catch (ex) {
+    logError(strings.GetStringFromName('error.soundfile'));
+  }
+  return 'resource://tabbadge/sound.ogg';
 }
 
 function popupShowing(event) {
@@ -653,6 +672,9 @@ function updateBadgeWithValue(tab, badgeValue, match) {
     if (isInList(uri, alertlist)) {
       alertsService.showAlertNotification('chrome://tabbadge/content/icon64.png', tab.label, '');
     }
+    if (isInList(uri, soundlist) && alertSound.paused) {
+      alertSound.play();
+    }
   }
 }
 
@@ -800,4 +822,15 @@ function drawDigit(cx, digit) {
     cx.fillRect(1, 12, 1, 3);
   if (digit == 0 || digit == 3 || digit == 4 || digit == 5 || digit == 6 || digit == 7 || digit == 8 || digit == 9)
     cx.fillRect(4, 12, 1, 3);
+}
+
+function logError(message) {
+  let frame = Components.stack.caller;
+  let filename = frame.filename ? frame.filename.split(' -> ').pop() : null;
+  let scriptError = Cc['@mozilla.org/scripterror;1'].createInstance(Ci.nsIScriptError);
+  scriptError.init(
+    message, filename, null, frame.lineNumber, frame.columnNumber,
+    Ci.nsIScriptError.infoFlag, 'component javascript'
+  );
+  Services.console.logMessage(scriptError);
 }
