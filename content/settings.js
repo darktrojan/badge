@@ -57,6 +57,7 @@ let animated = document.getElementById('animated');
 let unanimated = document.getElementById('unanimated');
 let icon = document.getElementById('icon');
 let over = false;
+let running = false;
 let animationtimer = document.getElementById('animationtimer');
 let badgevalue = 3;
 
@@ -82,23 +83,26 @@ animationtimer.addEventListener('animationend', function() {
 		} else {
 			animationtimer.style.animationName = 'timer2';
 		}
+	} else {
+		running = false;
 	}
 });
 appearance.addEventListener('mouseenter', function() {
-	console.log('mouseenter');
 	if (over) {
 		return;
 	}
 
 	over = true;
-	if (animationtimer.style.animationName == 'timer1') {
-		animationtimer.style.animationName = 'timer2';
-	} else {
-		animationtimer.style.animationName = 'timer1';
+	if (!running) {
+		running = true;
+		if (animationtimer.style.animationName == 'timer1') {
+			animationtimer.style.animationName = 'timer2';
+		} else {
+			animationtimer.style.animationName = 'timer1';
+		}
 	}
 });
 appearance.addEventListener('mouseleave', function() {
-	console.log('mouseleave');
 	over = false;
 });
 animated.addEventListener('animationend', function() {
