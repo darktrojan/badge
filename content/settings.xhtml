@@ -195,17 +195,26 @@
 				</li>
 			</template>
 		</div>
-		<div style="width: 400px; flex: auto; margin-left: 20px;">
+		<div id="effects" style="width: 400px; flex: auto; margin-left: 20px;">
 			<svg:svg width="45" height="33" viewBox="-11 -11 30 22">
 				<svg:use xlink:href="chrome://tabbadge/content/icons.svg#shakelisted" />
 			</svg:svg>Highlight Firefox icon
-			<ul data-list="shakelist">
+			<ul>
 				<li>
-					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="add(this);">
+					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="addeffect(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
 			</ul>
+			<template id="listitem2">
+				<li>
+					<svg:svg width="90" height="22" viewBox="-11 -11 90 22">
+						<svg:use data-list="alertlist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" />
+						<svg:use data-list="shakelist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(30, 0)" />
+						<svg:use data-list="soundlist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(60, 0)" />
+					</svg:svg><span></span>
+				</li>
+			</template>
 		</div>
 		<script type="application/javascript;version=1.8" src="chrome://tabbadge/content/settings.js"></script>
 	</body>

@@ -35,19 +35,13 @@ document.getElementById('backcolor').value = backcolorRule.style.fill = prefs.ge
 document.getElementById('forecolor').value = forecolorRule.style.fill = prefs.getCharPref('forecolor');
 
 let template = document.getElementById('listitem');
-for (let l of ['blacklist', 'whitelist', 'shakelist']) {
-	if (!prefs.prefHasUserValue(l)) {
-		continue;
-	}
-
+for (let l of ['blacklist', 'whitelist']) if (prefs.prefHasUserValue(l)) {
 	let list = document.querySelector('[data-list="' + l + '"]');
-	for (let d of prefs.getCharPref(l).split(/\s+/)) {
-		if (d) {
-			let listitem = template.content.cloneNode(true);
-			setU(listitem, '#' + l + 'ed');
-			listitem.querySelector('span').textContent = d;
-			list.insertBefore(listitem, list.lastElementChild);
-		}
+	for (let d of prefs.getCharPref(l).split(/\s+/)) if (d) {
+		let listitem = template.content.cloneNode(true);
+		setU(listitem, '#' + l + 'ed');
+		listitem.querySelector('span').textContent = d;
+		list.insertBefore(listitem, list.lastElementChild);
 	}
 }
 
@@ -108,6 +102,34 @@ appearance.addEventListener('mouseleave', function() {
 animated.addEventListener('animationend', function() {
 	this.classList.remove('playing');
 });
+
+let effects = new Map();
+for (let l of ['alertlist', 'shakelist', 'soundlist']) if (prefs.prefHasUserValue(l)) {
+	for (let d of prefs.getCharPref(l).split(/\s+/)) if (d) {
+		let effectList = effects.get(d) || [];
+		effectList.push(l);
+		effects.set(d, effectList);
+	}
+}
+
+let template2 = document.getElementById('listitem2');
+for (let [k, v] of effects) {
+	let list = document.querySelector('#effects > ul');
+	let listitem = template2.content.cloneNode(true);
+	let icons = listitem.querySelectorAll('use');
+	if (v.includes('alertlist')) {
+		setU(icons[0], '#alertlisted');
+	}
+	if (v.includes('shakelist')) {
+		setU(icons[1], '#shakelisted');
+	}
+	if (v.includes('soundlist')) {
+		setU(icons[2], '#soundlisted');
+	}
+	listitem.querySelector('span').textContent = k;
+	list.insertBefore(listitem, list.lastElementChild);
+	console.log(k, v);
+}
 
 setTimeout(function() {
 	document.documentElement.dataset.complete = true;
@@ -189,6 +211,37 @@ function showhide(which) {
 	prefs.setCharPref(listName, domains.join(' '));
 }
 
+function showhideeffect(which) {
+	let svg = which.parentNode;
+	let listitem = svg.parentNode;
+	let list = listitem.parentNode;
+	let listName = which.getAttribute('data-list'); // SVG elements don't have a dataset
+
+	if (getU(which) == '#empty') {
+		setU(which, '#' + listName + 'ed');
+	} else {
+		setU(which, '#empty');
+	}
+
+	if (Array.some(svg.querySelectorAll('use'), u => getU(u) != '#empty')) {
+		listitem.style.color = null;
+	} else {
+		listitem.style.color = '#484537';
+	}
+
+	let domains = [];
+	for (let i of list.children) {
+		if (i == list.lastElementChild) {
+			break;
+		}
+		if (getU(i.querySelector('use[data-list="' + listName + '"]')) != '#empty') {
+			domains.push(i.textContent.trim());
+		}
+	}
+
+	prefs.setCharPref(listName, domains.join(' '));
+}
+
 function add(which) {
 	let list = which.parentNode.parentNode;
 	let listName = list.dataset.list;
@@ -201,5 +254,17 @@ function add(which) {
 		list.style.height = list.scrollHeight + 'px';
 
 		showhide(listitem.querySelector('svg'));
+	}
+}
+
+function addeffect(which) {
+	let list = which.parentNode.parentNode;
+
+	let newDomain = prompt('foo');
+	if (newDomain) {
+		let listitem = template2.content.cloneNode(true).firstElementChild;
+		listitem.querySelector('span').textContent = newDomain;
+		list.insertBefore(listitem, list.lastElementChild);
+		list.style.height = list.scrollHeight + 'px';
 	}
 }
