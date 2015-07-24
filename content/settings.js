@@ -5,10 +5,6 @@ const XLINKNS = document.lookupNamespaceURI('xlink');
 let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 
 let appearance = document.getElementById('appearance');
-appearance.setAttribute('width', appearance.parentNode.offsetWidth);
-let viewBox = appearance.getAttribute('viewBox').split(' ');
-viewBox[2] = appearance.parentNode.offsetWidth * 2 / 3;
-appearance.setAttribute('viewBox', viewBox.join(' '));
 
 let animated_check = document.getElementById('animated_check');
 let unanimated_check = document.getElementById('unanimated_check');

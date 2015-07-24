@@ -9,7 +9,7 @@
 	</head>
 	<body style="display: flex;">
 		<div style="width: 400px; flex: auto;">
-			<svg id="appearance" width="400" height="180" viewBox="-16 0 266.66 120" onanimationend="this.classList.remove('playing');" xmlns="http://www.w3.org/2000/svg">
+			<svg id="appearance" width="100%" height="180" preserveAspectRatio="xMinYMid slice" viewBox="-16 0 300 120" onanimationend="this.classList.remove('playing');" xmlns="http://www.w3.org/2000/svg">
 				<g id="animated">
 					<use id="animated_check" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(-5, 15)" onclick="select(this);" />
 					<path
@@ -164,51 +164,51 @@
 		</div>
 		<div id="mode" style="width: 400px; flex: auto; margin-left: 20px;">
 			<div data-mode="1" onclick="selectmode(this);" style="cursor: pointer;">
-				<svg:svg width="45" height="33" viewBox="-11 -11 30 22">
+				<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 					<svg:use xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 				</svg:svg>Do not show for domains on blacklist
 			</div>
 			<ul data-list="blacklist">
 				<li>
-					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="add(this);">
+					<svg:svg width="30" height="22" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22" onclick="add(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
 			</ul>
 			<div data-mode="2" onclick="selectmode(this);" style="cursor: pointer;">
-				<svg:svg width="45" height="33" viewBox="-11 -11 30 22">
+				<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 					<svg:use xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 				</svg:svg>Only show for domains on whitelist
 			</div>
 			<ul data-list="whitelist">
 				<li>
-					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="add(this);">
+					<svg:svg width="30" height="22" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22" onclick="add(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
 			</ul>
 			<template id="listitem">
 				<li>
-					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="showhide(this);">
+					<svg:svg width="30" height="22" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22" onclick="showhide(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 					</svg:svg><span></span>
 				</li>
 			</template>
 		</div>
 		<div id="effects" style="width: 400px; flex: auto; margin-left: 20px;">
-			<svg:svg width="45" height="33" viewBox="-11 -11 30 22">
+			<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 				<svg:use xlink:href="chrome://tabbadge/content/icons.svg#shakelisted" />
 			</svg:svg>Highlight Firefox icon
 			<ul>
 				<li>
-					<svg:svg width="30" height="22" viewBox="-11 -11 30 22" onclick="addeffect(this);">
+					<svg:svg width="30" height="22" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22" onclick="addeffect(this);">
 						<svg:use xlink:href="chrome://tabbadge/content/icons.svg#add" />
 					</svg:svg>Add
 				</li>
 			</ul>
 			<template id="listitem2">
 				<li>
-					<svg:svg width="90" height="22" viewBox="-11 -11 90 22">
+					<svg:svg width="90" height="22" preserveAspectRatio="xMinYMid" viewBox="-11 -11 72 22">
 						<svg:use data-list="alertlist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 						<svg:use data-list="shakelist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(30, 0)" />
 						<svg:use data-list="soundlist" onclick="showhideeffect(this);" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(60, 0)" />
