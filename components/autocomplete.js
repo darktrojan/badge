@@ -71,7 +71,7 @@ function HostsAutoCompleteSearch() {
 }
 HostsAutoCompleteSearch.prototype = {
   startSearch: function(searchString, searchParam, result, listener) {
-    let results = searchString.length ? [host for (host of this._allHosts) if (host.indexOf(searchString) >= 0)] : [];
+    let results = searchString.length ? [for (host of this._allHosts) if (host.indexOf(searchString) >= 0) host] : [];
     let newResult = new HostsAutoCompleteResult(searchString, results);
     listener.onSearchResult(this, newResult);
   },
@@ -84,4 +84,4 @@ HostsAutoCompleteSearch.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAutoCompleteSearch])
 };
 
-let NSGetFactory = XPCOMUtils.generateNSGetFactory([HostsAutoCompleteSearch]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([HostsAutoCompleteSearch]);

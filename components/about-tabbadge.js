@@ -22,4 +22,4 @@ TabBadgeAboutHandler.prototype = {
 	QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAboutModule])
 };
 
-let NSGetFactory = XPCOMUtils.generateNSGetFactory([TabBadgeAboutHandler]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([TabBadgeAboutHandler]);
