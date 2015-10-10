@@ -113,13 +113,13 @@ for (let [k, v] of effects) {
 	let list = document.querySelector('#effects > ul');
 	let listitem = template2.content.cloneNode(true);
 	let icons = listitem.querySelectorAll('use');
-	if (v.includes('alertlist')) {
+	if (v.indexOf('alertlist') >= 0) {
 		setU(icons[0], '#alertlisted');
 	}
-	if (v.includes('shakelist')) {
+	if (v.indexOf('shakelist') >= 0) {
 		setU(icons[1], '#shakelisted');
 	}
-	if (v.includes('soundlist')) {
+	if (v.indexOf('soundlist') >= 0) {
 		setU(icons[2], '#soundlisted');
 	}
 	listitem.querySelector('span').textContent = k;

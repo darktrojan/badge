@@ -476,7 +476,6 @@ function popupShowing(event) {
       }
     }
   } catch (e) {
-    Cu.reportError(e);
     label = undefined;
   }
 
