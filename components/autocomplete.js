@@ -1,5 +1,5 @@
+/* globals Components, XPCOMUtils, PlacesUtils */
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/PlacesUtils.jsm');
 
 const nsIAutoCompleteResult = Components.interfaces.nsIAutoCompleteResult;
@@ -33,19 +33,19 @@ HostsAutoCompleteResult.prototype = {
 	getLabelAt: function(index) {
 		return this.getValueAt(index);
 	},
-	getCommentAt: function(index) {
+	getCommentAt: function() {
 		return null;
 	},
-	getStyleAt: function(index) {
+	getStyleAt: function() {
 		return null;
 	},
-	getImageAt: function(index) {
+	getImageAt: function() {
 		return null;
 	},
 	getFinalCompleteValueAt: function(index) {
 		return this.getValueAt(index);
 	},
-	removeValueAt: function(index, removeFromDb) {
+	removeValueAt: function(index) {
 		this._results.splice(index, 1);
 	},
 	QueryInterface: XPCOMUtils.generateQI([nsIAutoCompleteResult])

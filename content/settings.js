@@ -1,3 +1,5 @@
+/* jshint browser: true, devel: true */
+/* globals Components, Services */
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 const XLINKNS = document.lookupNamespaceURI('xlink');
@@ -31,13 +33,17 @@ document.getElementById('backcolor').value = backcolorRule.style.fill = prefs.ge
 document.getElementById('forecolor').value = forecolorRule.style.fill = prefs.getCharPref('forecolor');
 
 let template = document.getElementById('listitem');
-for (let l of ['blacklist', 'whitelist']) if (prefs.prefHasUserValue(l)) {
-	let list = document.querySelector('[data-list="' + l + '"]');
-	for (let d of prefs.getCharPref(l).split(/\s+/)) if (d) {
-		let listitem = template.content.cloneNode(true);
-		setU(listitem, '#' + l + 'ed');
-		listitem.querySelector('span').textContent = d;
-		list.insertBefore(listitem, list.lastElementChild);
+for (let l of ['blacklist', 'whitelist']) {
+	if (prefs.prefHasUserValue(l)) {
+		let list = document.querySelector('[data-list="' + l + '"]');
+		for (let d of prefs.getCharPref(l).split(/\s+/)) {
+			if (d) {
+				let listitem = template.content.cloneNode(true);
+				setU(listitem, '#' + l + 'ed');
+				listitem.querySelector('span').textContent = d;
+				list.insertBefore(listitem, list.lastElementChild);
+			}
+		}
 	}
 }
 
@@ -100,11 +106,15 @@ animated.addEventListener('animationend', function() {
 });
 
 let effects = new Map();
-for (let l of ['alertlist', 'shakelist', 'soundlist']) if (prefs.prefHasUserValue(l)) {
-	for (let d of prefs.getCharPref(l).split(/\s+/)) if (d) {
-		let effectList = effects.get(d) || [];
-		effectList.push(l);
-		effects.set(d, effectList);
+for (let l of ['alertlist', 'shakelist', 'soundlist']) {
+	if (prefs.prefHasUserValue(l)) {
+		for (let d of prefs.getCharPref(l).split(/\s+/)) {
+			if (d) {
+				let effectList = effects.get(d) || [];
+				effectList.push(l);
+				effects.set(d, effectList);
+			}
+		}
 	}
 }
 
@@ -158,6 +168,7 @@ function select(which) {
 	}
 }
 
+/* exported setcolour */
 function setcolour(which) {
 	let rule = window[which.id + 'Rule'];
 	rule.style.fill = which.value;
@@ -166,7 +177,6 @@ function setcolour(which) {
 }
 
 function selectmode(which) {
-	let parent = which.parentNode;
 	let other;
 	if (which.dataset.mode == 1) {
 		other = document.querySelector('[data-mode="2"]');
@@ -207,6 +217,7 @@ function showhide(which) {
 	prefs.setCharPref(listName, domains.join(' '));
 }
 
+/* exported showhideeffect */
 function showhideeffect(which) {
 	let svg = which.parentNode;
 	let listitem = svg.parentNode;
@@ -238,9 +249,9 @@ function showhideeffect(which) {
 	prefs.setCharPref(listName, domains.join(' '));
 }
 
+/* exported add */
 function add(which) {
 	let list = which.parentNode.parentNode;
-	let listName = list.dataset.list;
 
 	let newDomain = prompt('foo');
 	if (newDomain) {
@@ -253,6 +264,7 @@ function add(which) {
 	}
 }
 
+/* exported addeffect */
 function addeffect(which) {
 	let list = which.parentNode.parentNode;
 

@@ -1,5 +1,6 @@
-/* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, strings, componentRegistrar, idleService, Iterator */
-/* exported install, uninstall, startup, shutdown */
+/* jshint -W041 */
+/* globals APP_SHUTDOWN, ADDON_INSTALL, ADDON_UNINSTALL, Iterator */
+/* globals Components, Services, XPCOMUtils */
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/Services.jsm');
@@ -41,6 +42,7 @@ let obs;
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'removedelay', 'style', 'whitelist'];
 let customRegExps = new Map();
 
+/* globals strings, componentRegistrar, alertSound */
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 	return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
 });
@@ -52,10 +54,11 @@ XPCOMUtils.defineLazyGetter(this, 'alertSound', function() {
 	sound.src = getSoundFileURI();
 	return sound;
 });
-XPCOMUtils.defineLazyModuleGetter(this, 'FileUtils', 'resource://gre/modules/FileUtils.jsm');
+/* globals alertsService, idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'alertsService', '@mozilla.org/alerts-service;1', 'nsIAlertsService');
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
 
+/* exported install, uninstall, startup, shutdown */
 function install() {
 	if (prefs.getPrefType('donationreminder') == Ci.nsIPrefBranch.PREF_STRING) {
 		prefs.clearUserPref('donationreminder');

@@ -1,3 +1,4 @@
+/* globals Components, Services, XPCOMUtils */
 Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -13,7 +14,7 @@ TabBadgeAboutHandler.prototype = {
 		channel.originalURI = aURI;
 		return channel;
 	},
-	getURIFlags: function(aURI) {
+	getURIFlags: function() {
 		return Components.interfaces.nsIAboutModule.ALLOW_SCRIPT;
 	},
 	classDescription: 'About Tab Badge Page',
