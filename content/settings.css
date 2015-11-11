@@ -4,7 +4,15 @@ body {
 	font-family: ubuntu;
 	font-size: 19.5px;
 	line-height: 43px;
-	margin: 20px;
+	margin: 10px;
+	min-width: 420px;
+	display: flex;
+	flex-wrap: wrap;
+}
+body > div {
+	width: 400px;
+	background-color: red;
+	margin: 10px;
 }
 svg {
 	-moz-user-select: none;
@@ -21,6 +29,13 @@ svg {
 	animation-timing-function: ease-in-out;
 	animation-iteration-count: 6;
 	animation-direction: alternate;	
+}
+.tablabel {
+	font-size: 13px;
+}
+.badgevalue {
+	font-size: 13px;
+	text-anchor: middle;
 }
 
 @keyframes jump {
@@ -60,7 +75,7 @@ svg {
 	}
 }
 
-use {
+use, div[data-mode] {
 	cursor: pointer;
 }
 

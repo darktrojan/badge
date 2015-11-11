@@ -7,8 +7,8 @@
 		<title></title>
 		<link rel="stylesheet" type="text/css" href="chrome://tabbadge/content/settings.css" />
 	</head>
-	<body style="display: flex;">
-		<div style="width: 400px; flex: auto;">
+	<body>
+		<div id="style">
 			<svg id="appearance" width="100%" height="180" preserveAspectRatio="xMinYMid slice" viewBox="-16 0 300 120" onanimationend="this.classList.remove('playing');" xmlns="http://www.w3.org/2000/svg">
 				<g id="animated">
 					<use id="animated_check" xlink:href="chrome://tabbadge/content/icons.svg#empty" transform="translate(-5, 15)" onclick="select(this);" />
@@ -28,7 +28,6 @@
 						x="60.296997"
 						y="19.50448"
 						fill="#484537"
-						style="font-size:13px;font-family:Ubuntu"
 						>[3] Tab Title</text>
 					<g>
 						<circle
@@ -41,7 +40,6 @@
 							class="badgevalue foreground"
 							x="206"
 							y="19.504477"
-							style="font-size:13px;font-family:Ubuntu;text-anchor:middle"
 							>3</text>
 					</g>
 					<path
@@ -67,7 +65,6 @@
 						x="60.296997"
 						y="59.504478"
 						fill="#484537"
-						style="font-size:13px;font-family:Ubuntu"
 						>[3] Tab Title</text>
 					<g>
 						<circle
@@ -80,7 +77,6 @@
 							class="badgevalue foreground"
 							x="206.11993"
 							y="59.504478"
-							style="font-size:13px;font-family:Ubuntu;text-anchor:middle"
 							>3</text>
 					</g>
 					<path
@@ -148,7 +144,6 @@
 						x="60.296997"
 						y="99.504478"
 						fill="#484537"
-						style="font-size:13px;font-family:Ubuntu"
 						>[3] Tab Title</text>
 					<path
 						d="m 219.70703,91.29281 -1.41406,1.41406 2.29297,2.29297 -2.29297,2.29297 1.41406,1.41406 L 222,96.4139 l 2.29297,2.29297 1.41406,-1.41406 -2.29297,-2.29297 2.29297,-2.29297 -1.41406,-1.41406 L 222,93.58578 219.70703,91.29281 Z"
@@ -162,8 +157,8 @@
 				Foreground: <input id="forecolor" type="color" value="#ffffff" onchange="setcolour(this);" />
 			</div>
 		</div>
-		<div id="mode" style="width: 400px; flex: auto; margin-left: 20px;">
-			<div data-mode="1" onclick="selectmode(this);" style="cursor: pointer;">
+		<div id="mode">
+			<div data-mode="1" onclick="selectmode(this);">
 				<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 					<svg:use xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 				</svg:svg>Do not show for domains on blacklist
@@ -175,7 +170,7 @@
 					</svg:svg>Add
 				</li>
 			</ul>
-			<div data-mode="2" onclick="selectmode(this);" style="cursor: pointer;">
+			<div data-mode="2" onclick="selectmode(this);">
 				<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 					<svg:use xlink:href="chrome://tabbadge/content/icons.svg#empty" />
 				</svg:svg>Only show for domains on whitelist
@@ -195,7 +190,7 @@
 				</li>
 			</template>
 		</div>
-		<div id="effects" style="width: 400px; flex: auto; margin-left: 20px;">
+		<div id="effects">
 			<svg:svg width="45" height="33" preserveAspectRatio="xMinYMid" viewBox="-11 -11 22 22">
 				<svg:use xlink:href="chrome://tabbadge/content/icons.svg#shakelisted" />
 			</svg:svg>Highlight Firefox icon
