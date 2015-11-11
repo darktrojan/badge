@@ -11,7 +11,6 @@ body {
 }
 body > div {
 	width: 400px;
-	background-color: red;
 	margin: 10px;
 }
 svg {
@@ -75,7 +74,7 @@ svg {
 	}
 }
 
-use, div[data-mode] {
+use, li[onclick], div[data-mode] {
 	cursor: pointer;
 }
 

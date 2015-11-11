@@ -134,7 +134,6 @@ for (let [k, v] of effects) {
 	}
 	listitem.querySelector('span').textContent = k;
 	list.insertBefore(listitem, list.lastElementChild);
-	console.log(k, v);
 }
 
 setTimeout(function() {
@@ -251,9 +250,9 @@ function showhideeffect(which) {
 
 /* exported add */
 function add(which) {
-	let list = which.parentNode.parentNode;
+	let list = which.parentNode;
 
-	let newDomain = prompt('foo');
+	let newDomain = getDomain('foo');
 	if (newDomain) {
 		let listitem = template.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
@@ -266,13 +265,23 @@ function add(which) {
 
 /* exported addeffect */
 function addeffect(which) {
-	let list = which.parentNode.parentNode;
+	let list = which.parentNode;
 
-	let newDomain = prompt('foo');
+	let newDomain = getDomain('foo');
 	if (newDomain) {
 		let listitem = template2.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
 		list.insertBefore(listitem, list.lastElementChild);
 		list.style.height = list.scrollHeight + 'px';
 	}
+}
+
+function getDomain() {
+	let values = { cancelled: true };
+	window.openDialog('chrome://tabbadge/content/domain.xul', 'tb-domain', 'centerscreen,modal', values);
+
+	if (values.cancelled) {
+		return null;
+	}
+	return values.domain;
 }

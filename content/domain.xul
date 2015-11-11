@@ -1,0 +1,7 @@
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<dialog buttons="accept,cancel" ondialogaccept="return dialogAccept();" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<hbox>
+		<textbox id="domain" type="autocomplete" completeselectedindex="true" autocompletesearch="hosts" enablehistory="true" />
+	</hbox>
+	<script type="application/javascript;version=1.8" src="domain.js"></script>
+</dialog>
