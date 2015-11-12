@@ -1,6 +1,7 @@
 /* jshint browser: true, devel: true */
 /* globals Components, Services */
 Components.utils.import('resource://gre/modules/Services.jsm');
+let { classes: Cc, interfaces: Ci } = Components;
 
 const XLINKNS = document.lookupNamespaceURI('xlink');
 
@@ -32,16 +33,16 @@ for (let r of document.styleSheets[0].cssRules) {
 document.getElementById('backcolor').value = backcolorRule.style.fill = prefs.getCharPref('backcolor');
 document.getElementById('forecolor').value = forecolorRule.style.fill = prefs.getCharPref('forecolor');
 
-let template = document.getElementById('listitem');
+let modeListItemTemplate = document.getElementById('modelistitem');
 for (let l of ['blacklist', 'whitelist']) {
 	if (prefs.prefHasUserValue(l)) {
 		let list = document.querySelector('[data-list="' + l + '"]');
 		for (let d of prefs.getCharPref(l).split(/\s+/)) {
 			if (d) {
-				let listitem = template.content.cloneNode(true);
+				let listitem = modeListItemTemplate.content.cloneNode(true);
 				setU(listitem, '#' + l + 'ed');
 				listitem.querySelector('span').textContent = d;
-				list.insertBefore(listitem, list.lastElementChild);
+				list.appendChild(listitem);
 			}
 		}
 	}
@@ -118,10 +119,10 @@ for (let l of ['alertlist', 'shakelist', 'soundlist']) {
 	}
 }
 
-let template2 = document.getElementById('listitem2');
+let effectListItemTemplate = document.getElementById('effectlistitem');
 for (let [k, v] of effects) {
 	let list = document.querySelector('#effects > ul');
-	let listitem = template2.content.cloneNode(true);
+	let listitem = effectListItemTemplate.content.cloneNode(true);
 	let icons = listitem.querySelectorAll('use');
 	if (v.indexOf('alertlist') >= 0) {
 		setU(icons[0], '#alertlisted');
@@ -133,7 +134,7 @@ for (let [k, v] of effects) {
 		setU(icons[2], '#soundlisted');
 	}
 	listitem.querySelector('span').textContent = k;
-	list.insertBefore(listitem, list.lastElementChild);
+	list.appendChild(listitem);
 }
 
 setTimeout(function() {
@@ -205,9 +206,6 @@ function showhide(which) {
 
 	let domains = [];
 	for (let i of list.children) {
-		if (i == list.lastElementChild) {
-			break;
-		}
 		if (getU(i) != '#empty') {
 			domains.push(i.textContent.trim());
 		}
@@ -237,9 +235,6 @@ function showhideeffect(which) {
 
 	let domains = [];
 	for (let i of list.children) {
-		if (i == list.lastElementChild) {
-			break;
-		}
 		if (getU(i.querySelector('use[data-list="' + listName + '"]')) != '#empty') {
 			domains.push(i.textContent.trim());
 		}
@@ -250,13 +245,13 @@ function showhideeffect(which) {
 
 /* exported add */
 function add(which) {
-	let list = which.parentNode;
+	let list = which.previousElementSibling;
 
 	let newDomain = getDomain('foo');
 	if (newDomain) {
-		let listitem = template.content.cloneNode(true).firstElementChild;
+		let listitem = modeListItemTemplate.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
-		list.insertBefore(listitem, list.lastElementChild);
+		list.appendChild(listitem);
 		list.style.height = list.scrollHeight + 'px';
 
 		showhide(listitem.querySelector('svg'));
@@ -265,13 +260,13 @@ function add(which) {
 
 /* exported addeffect */
 function addeffect(which) {
-	let list = which.parentNode;
+	let list = which.previousElementSibling;
 
 	let newDomain = getDomain('foo');
 	if (newDomain) {
-		let listitem = template2.content.cloneNode(true).firstElementChild;
+		let listitem = effectListItemTemplate.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
-		list.insertBefore(listitem, list.lastElementChild);
+		list.appendChild(listitem);
 		list.style.height = list.scrollHeight + 'px';
 	}
 }
@@ -284,4 +279,22 @@ function getDomain() {
 		return null;
 	}
 	return values.domain;
+}
+
+let filePicker = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
+filePicker.init(this, document.title, Ci.nsIFilePicker.modeOpen);
+filePicker.appendFilters(Ci.nsIFilePicker.filterAudio);
+filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
+filePicker.displayDirectory = Services.dirsvc.get('Desk', Ci.nsIFile);
+
+/* exported chooseSound */
+function chooseSound() {
+	if (filePicker.show() == Ci.nsIFilePicker.returnOK) {
+		prefs.setComplexValue('soundfile', Ci.nsIFile, filePicker.file);
+	}
+}
+
+/* exported playSound */
+function playSound() {
+	Services.obs.notifyObservers(null, 'tabbadge:playSound', null);
 }

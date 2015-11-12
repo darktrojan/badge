@@ -34,7 +34,7 @@ let forecolor;
 let backcolor;
 let smallBadge;
 let whitelistMode;
-let blacklist, whitelist, alertlist, shakelist, soundlist;
+var blacklist, whitelist, alertlist, shakelist, soundlist;
 let animating;
 let removeDelay;
 let obs;
@@ -50,9 +50,14 @@ XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
 	return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 });
 XPCOMUtils.defineLazyGetter(this, 'alertSound', function() {
-	let sound = new Services.appShell.hiddenDOMWindow.Audio();
-	sound.src = getSoundFileURI();
-	return sound;
+	let sound = Cc['@mozilla.org/sound;1'].createInstance(Ci.nsISound);
+	return {
+		src: getSoundFileURI(),
+		play: function() {
+			sound.play(this.src);
+		},
+		paused: true
+	};
 });
 /* globals alertsService, idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'alertsService', '@mozilla.org/alerts-service;1', 'nsIAlertsService');
@@ -116,6 +121,7 @@ function startup(params, reason) {
 	Services.ww.registerNotification(obs);
 
 	Services.obs.addObserver(obs, 'addon-options-displayed', false);
+	Services.obs.addObserver(obs, 'tabbadge:playSound', false);
 
 	if (reason != ADDON_INSTALL) {
 		// Truncate version numbers to floats
@@ -156,6 +162,7 @@ function shutdown(params, reason) {
 	}
 
 	Services.obs.removeObserver(obs, 'addon-options-displayed');
+	Services.obs.removeObserver(obs, 'tabbadge:playSound', false);
 
 	let windowEnum = Services.wm.getEnumerator(BROWSER_WINDOW);
 	while (windowEnum.hasMoreElements()) {
@@ -399,6 +406,9 @@ obs = {
 
 			prefs.setIntPref('donationreminder', Date.now() / 1000);
 			break;
+		case 'tabbadge:playSound':
+			alertSound.play();
+			break;
 		}
 	}
 };
@@ -437,12 +447,12 @@ function readCustomPref() {
 function getSoundFileURI() {
 	try {
 		if (prefs.prefHasUserValue('soundfile')) {
-			return Services.io.newFileURI(prefs.getComplexValue('soundfile', Ci.nsIFile)).spec;
+			return Services.io.newFileURI(prefs.getComplexValue('soundfile', Ci.nsIFile));
 		}
 	} catch (ex) {
 		logError(strings.GetStringFromName('error.soundfile'));
 	}
-	return 'resource://tabbadge/sound.ogg';
+	return Services.io.newURI('resource://tabbadge/sound.ogg', null, null);
 }
 
 function popupShowing(event) {

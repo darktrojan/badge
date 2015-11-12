@@ -5,13 +5,38 @@ body {
 	font-size: 19.5px;
 	line-height: 43px;
 	margin: 10px;
+}
+#content {
+	margin: 0 auto;
 	min-width: 420px;
+	max-width: 1470px;
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: space-around;
 }
-body > div {
+h1 {
+	font-size: 32.5px;
+	line-height: 1;
+	margin: 20px 0;
+	text-align: center;
+}
+#content > div {
 	width: 400px;
 	margin: 10px;
+}
+h2 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 26px;
+	line-height: 1;
+	text-align: center;
+}
+h3 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-size: 19.5px;
+	line-height: 1;
+	text-align: center;
 }
 svg {
 	-moz-user-select: none;
@@ -74,7 +99,7 @@ svg {
 	}
 }
 
-use, li[onclick], div[data-mode] {
+[onclick], [onclick] * {
 	cursor: pointer;
 }
 
@@ -94,16 +119,32 @@ input[type="color"] {
 }
 
 ul {
-	margin: 0 0 0 45px;
+	margin: 0;
 	list-style: none;
 	padding-left: 0;
 	font-size: 16px;
 	line-height: 30px;
+}
+#mode div.modedetail {
 	overflow: hidden;
-}
-#mode ul {
 	height: 0px;
+	margin-inline-start: 45px;
 }
-:root[data-complete] ul {
+:root[data-complete] div.modedetail {
 	transition: height 500ms;
+}
+
+button {
+	background-color: #f4eed7;
+	color: #484537;
+	border: none;
+	padding: 4px;
+	font-family: ubuntu;
+	font-size: 16px;
+}
+button use.negative > g :first-child {
+	fill: #f4eed7;
+}
+button use.negative > g :last-child {
+	fill: #484537;
 }
