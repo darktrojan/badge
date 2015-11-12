@@ -9,6 +9,8 @@
 		<em:name>Tab Badge</em:name>
 		<em:description>Adds a counter badge to your tabs - great for Facebook or Twitter notifications.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
+		<em:optionsURL>about:tabbadge</em:optionsURL>
+		<em:optionsType>3</em:optionsType>
 
 		<em:targetApplication>
 			<Description>
