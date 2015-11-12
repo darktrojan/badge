@@ -1,10 +1,10 @@
 body {
 	background-color: #24221c;
 	color: #f4eed7;
-	font-family: ubuntu;
 	font-size: 19.5px;
 	line-height: 43px;
 	margin: 10px;
+	font-family: var(--fontFamily);
 }
 #content {
 	margin: 0 auto;
@@ -139,7 +139,7 @@ button {
 	color: #484537;
 	border: none;
 	padding: 4px;
-	font-family: ubuntu;
+	font-family: var(--fontFamily);
 	font-size: 16px;
 }
 button use.negative > g :first-child {

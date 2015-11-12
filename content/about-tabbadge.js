@@ -5,6 +5,12 @@ let { classes: Cc, interfaces: Ci } = Components;
 
 const XLINKNS = document.lookupNamespaceURI('xlink');
 
+let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
+document.body.style.setProperty(
+	'--fontFamily',
+	recentWindow.getComputedStyle(recentWindow.document.querySelector('tab'), null).fontFamily
+);
+
 let prefs = Services.prefs.getBranch('extensions.tabbadge.');
 
 let appearance = document.getElementById('appearance');
