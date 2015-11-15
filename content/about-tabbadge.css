@@ -52,7 +52,7 @@ svg {
 	animation-duration: 250ms;
 	animation-timing-function: ease-in-out;
 	animation-iteration-count: 6;
-	animation-direction: alternate;	
+	animation-direction: alternate;
 }
 .tablabel {
 	font-size: 13px;

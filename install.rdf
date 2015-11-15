@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>badge@darktrojan.net</em:id>
-		<em:version>1.22</em:version>
+		<em:version>1.24</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Tab Badge</em:name>
@@ -16,30 +16,29 @@
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
 				<em:minVersion>38.0</em:minVersion>
-				<em:maxVersion>41.0a1</em:maxVersion>
+				<em:maxVersion>44.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
-
-		<em:localized>
-			<Description>
-				<em:locale>zh-CN</em:locale>
-				<em:name>Tab Badge</em:name>
-				<em:description>添加一个计数标志到标签页 - 非常适合 Facebook 或 Twitter 的通知。</em:description>
-			</Description>
-		</em:localized>
-		<em:localized>
-			<Description>
-				<em:locale>zh-TW</em:locale>
-				<em:name>Tab Badge</em:name>
-				<em:description>在您的分頁上加入計數徽章－－超棒的 Facebook 或 Twitter的通知工具！</em:description>
-			</Description>
-		</em:localized>
 
 		<em:localized>
 			<Description>
 				<em:locale>nl</em:locale>
 				<em:name>Tabblad-badge</em:name>
 				<em:description>Voegt een tellerbadge toe aan uw tabbladen - geweldig voor Facebook- of Twitter-meldingen.</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>zh-CN</em:locale>
+				<em:name>Tab Badge</em:name>
+				<em:description>添加一个计数器标志到标签页 - 提供 Facebook 和 Twitter 的消息通知</em:description>
+			</Description>
+		</em:localized>
+		<em:localized>
+			<Description>
+				<em:locale>zh-TW</em:locale>
+				<em:name>Tab Badge</em:name>
+				<em:description>在您的分頁標籤加上計數徽章－和 Facebook 或 Twitter 的通知功能非常搭配！</em:description>
 			</Description>
 		</em:localized>
 	</Description>
