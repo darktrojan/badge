@@ -104,18 +104,20 @@ svg {
 }
 
 input[type="color"] {
-	background-color: transparent;
-	border: medium none;
+	background-color: #f4eed7;
+	color: #484537;
+	border: none;
+	border-radius: 2px;
 	padding: 2px 0px;
-	width: 70px;
-	height: 37px;
+	width: 50px;
+	height: 30px;
 	vertical-align: middle;
 }
 .background {
-	fill: #cc0000;
+	fill: var(--backcolor);
 }
 .foreground {
-	fill: #ffffff;
+	fill: var(--forecolor);
 }
 
 ul {
@@ -138,6 +140,7 @@ button {
 	background-color: #f4eed7;
 	color: #484537;
 	border: none;
+	border-radius: 2px;
 	padding: 4px;
 	font-family: var(--fontFamily);
 	font-size: 16px;

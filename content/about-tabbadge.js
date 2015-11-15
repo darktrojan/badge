@@ -28,16 +28,11 @@ if (prefs.getIntPref('style') == 1) {
 	select(icon_check);
 }
 
-let backcolorRule, forecolorRule;
-for (let r of document.styleSheets[0].cssRules) {
-	if (r.selectorText == '.background') {
-		backcolorRule = r;
-	} else if (r.selectorText == '.foreground') {
-		forecolorRule = r;
-	}
+for (let r of ['backcolor', 'forecolor']) {
+	let v = prefs.getCharPref(r);
+	document.body.style.setProperty('--' + r, v);
+	document.getElementById(r).value = v;
 }
-document.getElementById('backcolor').value = backcolorRule.style.fill = prefs.getCharPref('backcolor');
-document.getElementById('forecolor').value = forecolorRule.style.fill = prefs.getCharPref('forecolor');
 
 let modeListItemTemplate = document.getElementById('modelistitem');
 for (let l of ['blacklist', 'whitelist']) {
@@ -176,9 +171,7 @@ function select(which) {
 
 /* exported setcolour */
 function setcolour(which) {
-	let rule = window[which.id + 'Rule'];
-	rule.style.fill = which.value;
-
+	document.body.style.setProperty('--' + which.id, which.value);
 	prefs.setCharPref(which.id, which.value);
 }
 
