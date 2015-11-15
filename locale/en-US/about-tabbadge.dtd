@@ -1,0 +1,21 @@
+<!ENTITY heading.page "Tab Badge">
+<!ENTITY heading.appearance "Appearance">
+<!ENTITY heading.colours "Colours">
+<!ENTITY heading.mode "Mode">
+<!ENTITY heading.extra-alerts "Extra alerts">
+<!ENTITY heading.sound "Sound">
+
+<!ENTITY appearance.tab-title-example "Tab Title">
+<!ENTITY appearance.background.label "Background:">
+<!ENTITY appearance.foreground.label "Foreground:">
+
+<!ENTITY mode.blacklist.label "Do not show for domains on blacklist">
+<!ENTITY mode.whitelist.label "Only show for domains on whitelist">
+
+<!ENTITY effect.alert.tooltip "Show an alert message">
+<!ENTITY effect.highlight.tooltip "Highlight Firefox icon">
+<!ENTITY effect.sound.tooltip "Play a sound">
+
+<!ENTITY button.add.label "Add…">
+<!ENTITY button.choose-sound.label "Choose sound…">
+<!ENTITY button.test-sound.label "Test">

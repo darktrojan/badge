@@ -64,7 +64,9 @@ animationtimer.addEventListener('animationend', function() {
 
 	badgevalue = (badgevalue + 1) % 4;
 	for (let c of [animated, unanimated, icon]) {
-		c.querySelector('g > text').textContent = (badgevalue ? '[' + badgevalue + '] ' : '') + 'Tab Title';
+		let example = c.querySelector('g > text');
+		example.textContent = (badgevalue ? '[' + badgevalue + '] ' : '') +
+			example.textContent.replace(/^(\[\d\] )?/, '');
 		if (c == icon) {
 			for (let i of c.querySelectorAll('g > g')) {
 				i.style.display = (i.id == 'icon' + badgevalue) ? null : 'none';

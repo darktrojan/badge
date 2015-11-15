@@ -103,6 +103,9 @@ svg {
 	cursor: pointer;
 }
 
+label {
+	vertical-align: middle;
+}
 input[type="color"] {
 	background-color: #f4eed7;
 	color: #484537;
