@@ -44,7 +44,7 @@ let customRegExps = new Map();
 
 /* globals strings, componentRegistrar, alertSound */
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
-	return Services.strings.createBundle('chrome://tabbadge/locale/strings.properties');
+	return Services.strings.createBundle('chrome://tabbadge/locale/tabbadge.properties');
 });
 XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
 	return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
