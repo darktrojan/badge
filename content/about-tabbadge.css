@@ -149,9 +149,7 @@ button {
 	font-family: var(--fontFamily);
 	font-size: 16px;
 }
-button use.negative > g :first-child {
-	fill: #f4eed7;
-}
-button use.negative > g :last-child {
-	fill: #484537;
+button > svg,
+button > span {
+	vertical-align: middle;
 }
