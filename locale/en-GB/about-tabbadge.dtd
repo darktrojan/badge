@@ -19,3 +19,5 @@
 <!ENTITY button.add.label "Add…">
 <!ENTITY button.choose-sound.label "Choose sound…">
 <!ENTITY button.test-sound.label "Test">
+
+<!ENTITY choose-site.label "Choose a site to add:">

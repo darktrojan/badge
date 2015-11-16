@@ -135,7 +135,8 @@ ul {
 	height: 0px;
 	margin-inline-start: 45px;
 }
-:root[data-complete] div.modedetail {
+:root[data-complete] div.modedetail,
+#effects ul {
 	transition: height 500ms;
 }
 

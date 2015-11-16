@@ -123,8 +123,8 @@ for (let l of ['alertlist', 'shakelist', 'soundlist']) {
 }
 
 let effectListItemTemplate = document.getElementById('effectlistitem');
+let list = document.querySelector('#effects > ul');
 for (let [k, v] of effects) {
-	let list = document.querySelector('#effects > ul');
 	let listitem = effectListItemTemplate.content.cloneNode(true);
 	let icons = listitem.querySelectorAll('use');
 	if (v.indexOf('alertlist') >= 0) {
@@ -139,6 +139,7 @@ for (let [k, v] of effects) {
 	listitem.querySelector('span').textContent = k;
 	list.appendChild(listitem);
 }
+list.style.height = list.scrollHeight + 'px';
 
 setTimeout(function() {
 	document.documentElement.dataset.complete = true;
@@ -248,12 +249,13 @@ function showhideeffect(which) {
 function add(which) {
 	let list = which.previousElementSibling;
 
-	let newDomain = getDomain('foo');
+	let [newDomain] = getDomain();
 	if (newDomain) {
 		let listitem = modeListItemTemplate.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
 		list.appendChild(listitem);
-		list.style.height = list.scrollHeight + 'px';
+		let listwrap = list.parentNode;
+		listwrap.style.height = listwrap.scrollHeight + 'px';
 
 		showhide(listitem.querySelector('svg'));
 	}
@@ -263,23 +265,29 @@ function add(which) {
 function addeffect(which) {
 	let list = which.previousElementSibling;
 
-	let newDomain = getDomain('foo');
+	let [newDomain, values] = getDomain(true);
 	if (newDomain) {
 		let listitem = effectListItemTemplate.content.cloneNode(true).firstElementChild;
 		listitem.querySelector('span').textContent = newDomain;
 		list.appendChild(listitem);
 		list.style.height = list.scrollHeight + 'px';
+
+		for (let e of ['alertlist', 'shakelist', 'soundlist']) {
+			if (values[e]) {
+				showhideeffect(listitem.querySelector('use[data-list="' + e + '"]'));
+			}
+		}
 	}
 }
 
-function getDomain() {
-	let values = { cancelled: true };
+function getDomain(effects = false) {
+	let values = { cancelled: true, effects: effects };
 	window.openDialog('chrome://tabbadge/content/domain.xul', 'tb-domain', 'centerscreen,modal', values);
 
 	if (values.cancelled) {
-		return null;
+		return [null];
 	}
-	return values.domain;
+	return [values.domain, values];
 }
 
 let filePicker = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
