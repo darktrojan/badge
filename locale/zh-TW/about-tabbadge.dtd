@@ -1,0 +1,21 @@
+<!ENTITY heading.page "Tab Badge">
+<!ENTITY heading.appearance "外觀">
+<!ENTITY heading.colours "顏色">
+<!ENTITY heading.mode "模式">
+<!ENTITY heading.extra-alerts "額外提醒">
+<!ENTITY heading.sound "音效">
+
+<!ENTITY appearance.tab-title-example "分頁標題">
+<!ENTITY appearance.background.label "背景:">
+<!ENTITY appearance.foreground.label "前景:">
+
+<!ENTITY mode.blacklist.label "不要對黑名單上的網域顯示">
+<!ENTITY mode.whitelist.label "只對白名單上的網域顯示">
+
+<!ENTITY effect.alert.tooltip "顯示提醒訊息">
+<!ENTITY effect.highlight.tooltip "強調 Firefox 圖示">
+<!ENTITY effect.sound.tooltip "播放音效">
+
+<!ENTITY button.add.label "新增…">
+<!ENTITY button.choose-sound.label "選擇音效…">
+<!ENTITY button.test-sound.label "測試">
