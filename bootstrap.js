@@ -42,23 +42,14 @@ let obs;
 let syncedPrefs = ['animating', 'blacklist', 'backcolor', 'forecolor', 'mode', 'removedelay', 'style', 'whitelist'];
 let customRegExps = new Map();
 
-/* globals strings, componentRegistrar, alertSound */
+/* globals strings, componentRegistrar */
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 	return Services.strings.createBundle('chrome://tabbadge/locale/tabbadge.properties');
 });
 XPCOMUtils.defineLazyGetter(this, 'componentRegistrar', function() {
 	return Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 });
-XPCOMUtils.defineLazyGetter(this, 'alertSound', function() {
-	let sound = Cc['@mozilla.org/sound;1'].createInstance(Ci.nsISound);
-	return {
-		src: getSoundFileURI(),
-		play: function() {
-			sound.play(this.src);
-		},
-		paused: true
-	};
-});
+
 /* globals alertsService, idleService */
 XPCOMUtils.defineLazyServiceGetter(this, 'alertsService', '@mozilla.org/alerts-service;1', 'nsIAlertsService');
 XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
@@ -330,9 +321,6 @@ obs = {
 			case 'soundlist':
 				Cu.getGlobalForObject(this)[aData] = getArrayPref(aData);
 				break;
-			case 'soundfile':
-				alertSound.src = getSoundFileURI();
-				break;
 			case 'style':
 				smallBadge = prefs.getIntPref('style') == STYLE_SMALL;
 				enumerateTabs(updateBadge);
@@ -407,7 +395,8 @@ obs = {
 			prefs.setIntPref('donationreminder', Date.now() / 1000);
 			break;
 		case 'tabbadge:playSound':
-			alertSound.play();
+			let myrecentWindow = Services.wm.getMostRecentWindow(BROWSER_WINDOW);
+			new myrecentWindow.Audio(getSoundFileURI()).play();
 			break;
 		}
 	}
@@ -447,12 +436,12 @@ function readCustomPref() {
 function getSoundFileURI() {
 	try {
 		if (prefs.prefHasUserValue('soundfile')) {
-			return Services.io.newFileURI(prefs.getComplexValue('soundfile', Ci.nsIFile));
+			return Services.io.newFileURI(prefs.getComplexValue('soundfile', Ci.nsIFile)).spec;
 		}
 	} catch (ex) {
 		logError(strings.GetStringFromName('error.soundfile'));
 	}
-	return Services.io.newURI('resource://tabbadge/sound.ogg', null, null);
+	return 'resource://tabbadge/sound.ogg';
 }
 
 function popupShowing(event) {
@@ -683,10 +672,17 @@ function updateBadgeWithValue(tab, badgeValue, match) {
 			chromeWindow.getAttention();
 		}
 		if (isInList(uri, alertlist)) {
-			alertsService.showAlertNotification('chrome://tabbadge/content/icon64.png', tab.label, '');
+			alertsService.showAlertNotification('chrome://tabbadge/content/icon64.png', tab.label, '', true, null, {
+				observe: function(subject, topic) {
+					if (topic == 'alertclickcallback') {
+						chromeWindow.gBrowser.selectedTab = tab;
+						chromeWindow.focus();
+					}
+				}
+			});
 		}
-		if (isInList(uri, soundlist) && alertSound.paused) {
-			alertSound.play();
+		if (isInList(uri, soundlist)) {
+			new chromeWindow.Audio(getSoundFileURI()).play();
 		}
 	}
 }
