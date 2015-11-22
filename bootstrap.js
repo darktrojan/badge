@@ -672,7 +672,7 @@ function updateBadgeWithValue(tab, badgeValue, match) {
 			chromeWindow.getAttention();
 		}
 		if (isInList(uri, alertlist)) {
-			alertsService.showAlertNotification('chrome://tabbadge/content/icon64.png', tab.label, '', true, null, {
+			alertsService.showAlertNotification('resource://tabbadge/icon64.png', tab.label, '', true, null, {
 				observe: function(subject, topic) {
 					if (topic == 'alertclickcallback') {
 						chromeWindow.gBrowser.selectedTab = tab;
