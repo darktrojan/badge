@@ -1,0 +1,23 @@
+<!ENTITY heading.page "Tab Badge">
+<!ENTITY heading.appearance "外观">
+<!ENTITY heading.colours "颜色">
+<!ENTITY heading.mode "模式">
+<!ENTITY heading.extra-alerts "额外提醒">
+<!ENTITY heading.sound "声音">
+
+<!ENTITY appearance.tab-title-example "标签页标题">
+<!ENTITY appearance.background.label "背景色:">
+<!ENTITY appearance.foreground.label "前景色:">
+
+<!ENTITY mode.blacklist.label "不显示黑名单内的域名">
+<!ENTITY mode.whitelist.label "仅显示白名单内的域名">
+
+<!ENTITY effect.alert.tooltip "显示一条提醒消息">
+<!ENTITY effect.highlight.tooltip "高亮 Firefox 图标">
+<!ENTITY effect.sound.tooltip "播放声音">
+
+<!ENTITY button.add.label "添加…">
+<!ENTITY button.choose-sound.label "选择声音…">
+<!ENTITY button.test-sound.label "测试">
+
+<!ENTITY choose-site.label "Choose a site to add:">

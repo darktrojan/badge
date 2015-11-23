@@ -1,26 +1,26 @@
 .tab-badge {
-  text-align: center;
-  -moz-margin-start: 4px !important;
-  -moz-margin-end: -4px !important;
-  padding: 0 4px;
-  animation-name: jump;
-  animation-duration: 250ms;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: 6;
-  animation-direction: alternate;
+	text-align: center;
+	-moz-margin-start: 4px !important;
+	-moz-margin-end: -4px !important;
+	padding: 0 4px;
+	animation-name: jump;
+	animation-duration: 250ms;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 6;
+	animation-direction: alternate;
 }
 tab[pinned="true"] .tab-badge {
-  -moz-margin-start: -3px !important;
-  -moz-margin-end: 3px !important;
+	-moz-margin-start: -3px !important;
+	-moz-margin-end: 3px !important;
 }
 
 @keyframes jump {
-  0% {
-    opacity: 1;
-    transform: none;
-  }
-  100% {
-    opacity: 0.5;
-    transform: scale(1.5, 1.5);
-  }
+	0% {
+		opacity: 1;
+		transform: none;
+	}
+	100% {
+		opacity: 0.5;
+		transform: scale(1.5, 1.5);
+	}
 }

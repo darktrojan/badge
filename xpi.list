@@ -1,8 +1,9 @@
 bootstrap.js
 chrome.manifest
-install.rdf
+components/*
+content/*
 icon.png
 icon64.png
+install.rdf
 locale/*
-options.xul
 resources/*

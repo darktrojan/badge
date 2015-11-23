@@ -1,0 +1,155 @@
+body {
+	background-color: #24221c;
+	color: #f4eed7;
+	font-size: 19.5px;
+	line-height: 43px;
+	margin: 10px;
+	font-family: var(--fontFamily);
+}
+#content {
+	margin: 0 auto;
+	min-width: 420px;
+	max-width: 1470px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+}
+h1 {
+	font-size: 32.5px;
+	line-height: 1;
+	margin: 20px 0;
+	text-align: center;
+}
+#content > div {
+	width: 400px;
+	margin: 10px;
+}
+h2 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 26px;
+	line-height: 1;
+	text-align: center;
+}
+h3 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-size: 19.5px;
+	line-height: 1;
+	text-align: center;
+}
+svg {
+	-moz-user-select: none;
+	cursor: default;
+	display: inline-block;
+	vertical-align: middle;
+}
+#animated > g {
+	transform-origin: 206px 15px;
+}
+#animated.playing > g {
+	animation-name: jump;
+	animation-duration: 250ms;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 6;
+	animation-direction: alternate;
+}
+.tablabel {
+	font-size: 13px;
+}
+.badgevalue {
+	font-size: 13px;
+	text-anchor: middle;
+}
+
+@keyframes jump {
+	0% {
+		opacity: 1;
+		transform: none;
+	}
+	100% {
+		opacity: 0.5;
+		transform: scale(1.5, 1.5);
+	}
+}
+
+#animationtimer {
+	stroke-dasharray: 200.66px;
+	stroke-dashoffset: 200.66px;
+	animation-duration: 3s;
+	animation-timing-function: linear;
+	animation-iteration-count: 1;
+	animation-fill-mode: both;
+}
+
+@keyframes timer1 {
+	0% {
+		stroke-dashoffset: 200.66px;
+	}
+	100% {
+		stroke-dashoffset: 0px;
+	}
+}
+@keyframes timer2 {
+	0% {
+		stroke-dashoffset: 0px;
+	}
+	100% {
+		stroke-dashoffset: -200.66px;
+	}
+}
+
+[onclick], [onclick] * {
+	cursor: pointer;
+}
+
+label {
+	vertical-align: middle;
+}
+input[type="color"] {
+	background-color: #f4eed7;
+	color: #484537;
+	border: none;
+	border-radius: 2px;
+	padding: 2px 0px;
+	width: 50px;
+	height: 30px;
+	vertical-align: middle;
+}
+.background {
+	fill: var(--backcolor);
+}
+.foreground {
+	fill: var(--forecolor);
+}
+
+ul {
+	margin: 0;
+	list-style: none;
+	padding-left: 0;
+	font-size: 16px;
+	line-height: 30px;
+}
+#mode div.modedetail {
+	overflow: hidden;
+	height: 0px;
+	margin-inline-start: 45px;
+}
+:root[data-complete] div.modedetail,
+#effects ul {
+	transition: height 500ms;
+}
+
+button {
+	background-color: #f4eed7;
+	color: #484537;
+	border: none;
+	border-radius: 2px;
+	padding: 4px;
+	font-family: var(--fontFamily);
+	font-size: 16px;
+}
+button > svg,
+button > span {
+	vertical-align: middle;
+}

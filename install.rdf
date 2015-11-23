@@ -3,18 +3,20 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>badge@darktrojan.net</em:id>
-		<em:version>1.24</em:version>
+		<em:version>2</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Tab Badge</em:name>
 		<em:description>Adds a counter badge to your tabs - great for Facebook or Twitter notifications.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
+		<em:optionsURL>about:tabbadge</em:optionsURL>
+		<em:optionsType>3</em:optionsType>
 
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:minVersion>38.0</em:minVersion>
-				<em:maxVersion>44.0a1</em:maxVersion>
+				<em:minVersion>42.0</em:minVersion>
+				<em:maxVersion>45.0a1</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 
@@ -36,7 +38,7 @@
 			<Description>
 				<em:locale>zh-TW</em:locale>
 				<em:name>Tab Badge</em:name>
-				<em:description>在您的分頁標籤加上計數徽章－和 Facebook 或 Twitter 的通知功能非常搭配！</em:description>
+				<em:description>在您的分頁標籤加上計數徽章－－和 Facebook 或 Twitter 的通知功能非常搭配！</em:description>
 			</Description>
 		</em:localized>
 	</Description>
