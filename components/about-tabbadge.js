@@ -6,12 +6,13 @@ function TabBadgeAboutHandler() {
 }
 
 TabBadgeAboutHandler.prototype = {
-	newChannel: function(aURI) {
-		if (aURI.spec != 'about:tabbadge')
+	newChannel: function(uri, loadInfo) {
+		if (uri.spec != 'about:tabbadge')
 			return;
 
-		let channel = Services.io.newChannel('chrome://tabbadge/content/about-tabbadge.xhtml', null, null);
-		channel.originalURI = aURI;
+		let newURI = Services.io.newURI('chrome://tabbadge/content/about-tabbadge.xhtml', null, null);
+		let channel = Services.io.newChannelFromURIWithLoadInfo(newURI, loadInfo);
+		channel.originalURI = uri;
 		return channel;
 	},
 	getURIFlags: function() {
